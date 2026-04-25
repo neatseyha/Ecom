@@ -32,6 +32,42 @@ migrate = Migrate(app, db)
 from model import init_models
 Product, Category, User, Order, Wishlist, Rating, CartItem, OrderItem, Payment, Address, Shipping, Coupon, Brand = init_models(db)
 
+# Initialize database on app startup
+def init_db():
+    """Initialize database tables if they don't exist."""
+    try:
+        with app.app_context():
+            # Create all tables
+            db.create_all()
+            print("Database tables initialized successfully!")
+    except Exception as e:
+        print(f"Database initialization error: {e}")
+        # Don't fail the app startup if database init fails
+        pass
+
+# Call init_db when the module is imported (but only once)
+if not hasattr(app, '_db_initialized'):
+    init_db()
+    app._db_initialized = True
+
+# Health check route for debugging
+@app.route('/health')
+def health_check():
+    """Health check endpoint to verify app status."""
+    try:
+        # Test database connection
+        db.session.execute(text('SELECT 1'))
+        db_status = "OK"
+    except Exception as e:
+        db_status = f"ERROR: {str(e)}"
+
+    return {
+        "status": "OK",
+        "database": db_status,
+        "environment": "production" if os.getenv('DATABASE_URL') else "development",
+        "database_url": app.config.get('SQLALCHEMY_DATABASE_URI', 'Not set')[:50] + "..." if app.config.get('SQLALCHEMY_DATABASE_URI') else "Not set"
+    }
+
 
 def ensure_sqlite_product_schema():
     """Backfill missing product columns for older SQLite databases."""
@@ -391,10 +427,15 @@ def get_product(product_id):
 
 @app.route('/')
 def home():
-    wishlist_product_ids = []
-    if 'user_id' in session:
-        wishlist_product_ids = [w.product_id for w in Wishlist.query.filter_by(user_id=session['user_id']).all()]
-    return render_template('home.html', featured_products=get_products(limit=4), wishlist_product_ids=wishlist_product_ids)
+    try:
+        wishlist_product_ids = []
+        if 'user_id' in session:
+            wishlist_product_ids = [w.product_id for w in Wishlist.query.filter_by(user_id=session['user_id']).all()]
+        return render_template('home.html', featured_products=get_products(limit=4), wishlist_product_ids=wishlist_product_ids)
+    except Exception as e:
+        print(f"Error in home route: {e}")
+        # Return a basic error page or redirect to a maintenance page
+        return render_template('home.html', featured_products=[], wishlist_product_ids=[])
 
 @app.route('/shop')
 def shop():

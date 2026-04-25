@@ -42,8 +42,16 @@ class DevelopmentConfig(Config):
 
 class ProductionConfig(Config):
     DEBUG = False
-    # DATABASE_URL will be provided by Render
-    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+    # DATABASE_URL will be provided by Render - ensure it's set
+    database_url = os.getenv('DATABASE_URL')
+    if database_url:
+        # Handle Render's PostgreSQL URL format
+        if database_url.startswith('postgres://'):
+            database_url = database_url.replace('postgres://', 'postgresql://', 1)
+        SQLALCHEMY_DATABASE_URI = database_url
+    else:
+        # Fallback to SQLite if no DATABASE_URL
+        SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
 
 class TestingConfig(Config):
     TESTING = True
