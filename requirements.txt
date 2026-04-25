@@ -18,5 +18,5 @@ colorama==0.4.6
 typing_extensions==4.15.0
 qrcode==7.4.2
 bakong-khqr==0.5.7
-Pillow==10.1.0
-psycopg2-binary==2.9.9
+Pillow>=10.4.0
+psycopg2-binary>=2.9.10
