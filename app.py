@@ -2,7 +2,7 @@ from flask import Flask, render_template, request, session, redirect, url_for, j
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 from sqlalchemy import inspect, text, func
-from config import Config
+from config import Config, ProductionConfig
 import dashboard_config
 import os
 import json
@@ -14,13 +14,18 @@ import io
 from base64 import b64encode
 
 app = Flask(__name__)
-app.config.from_object(Config)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///app.db'
-app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
-app.secret_key = app.config.get('SECRET_KEY')
 
-os.makedirs(app.config.get('UPLOAD_FOLDER', 'static/upload'), exist_ok=True)
+# Use production config if DATABASE_URL is set (Render provides this)
+if os.getenv('DATABASE_URL'):
+    app.config.from_object(ProductionConfig)
+else:
+    app.config.from_object(Config)
 
+# Ensure we have a secret key
+if not app.config.get('SECRET_KEY'):
+    app.config['SECRET_KEY'] = os.urandom(24).hex()
+
+# Database configuration
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
 

@@ -11,7 +11,7 @@ ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg', 'gif'}
 MAX_CONTENT_LENGTH = 2 * 1024 * 1024
 
 class Config:
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-in-production')
+    SECRET_KEY = os.getenv('SECRET_KEY', os.urandom(24).hex())
     TELEGRAM_BOT_TOKEN = os.getenv('TELEGRAM_BOT_TOKEN')
     TELEGRAM_CHAT_ID = os.getenv('TELEGRAM_CHAT_ID')
     BASE_DIR = BASE_DIR
@@ -21,3 +21,30 @@ class Config:
     PERMANENT_SESSION_LIFETIME = timedelta(days=7)
     DEFAULT_THEME = os.environ.get('DEFAULT_THEME', 'light')
     DEFAULT_PALETTE = os.environ.get('DEFAULT_PALETTE', 'indigo')
+
+    # Database configuration for production
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL', 'sqlite:///app.db')
+    SQLALCHEMY_TRACK_MODIFICATIONS = False
+
+    # Production settings
+    DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
+    TESTING = os.getenv('FLASK_TESTING', 'False').lower() == 'true'
+
+    # File upload settings
+    USE_CLOUD_STORAGE = os.getenv('USE_CLOUD_STORAGE', 'False').lower() == 'true'
+    CLOUDINARY_CLOUD_NAME = os.getenv('CLOUDINARY_CLOUD_NAME')
+    CLOUDINARY_API_KEY = os.getenv('CLOUDINARY_API_KEY')
+    CLOUDINARY_API_SECRET = os.getenv('CLOUDINARY_API_SECRET')
+
+class DevelopmentConfig(Config):
+    DEBUG = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///app.db'
+
+class ProductionConfig(Config):
+    DEBUG = False
+    # DATABASE_URL will be provided by Render
+    SQLALCHEMY_DATABASE_URI = os.getenv('DATABASE_URL')
+
+class TestingConfig(Config):
+    TESTING = True
+    SQLALCHEMY_DATABASE_URI = 'sqlite:///:memory:'
