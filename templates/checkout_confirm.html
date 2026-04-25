@@ -1,0 +1,144 @@
+{% extends "base.html" %}
+
+{% block title %}Order Confirmation - TechShop{% endblock %}
+
+{% block content %}
+<section class="page-header">
+    <div class="container">
+        <h1>Review Your Order</h1>
+    </div>
+</section>
+
+<section class="checkout-section" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="container">
+        <div style="max-width: 900px; margin: 0 auto;">
+            <!-- Main Card Container -->
+            <div style="background: white; border: 2px solid #e5e7eb; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                
+                <!-- Header -->
+                <div style="background: linear-gradient(135deg, #111111 0%, #333333 100%); color: white; padding: 2rem; text-align: center;">
+                    <h2 style="margin: 0; font-size: 1.8rem; font-weight: 700; color: white;">✓ Order Ready for Payment</h2>
+                    <p style="margin: 0.5rem 0 0 0; color: #ccc;">Please review your order details before proceeding</p>
+                </div>
+
+                <!-- Content -->
+                <div style="padding: 3rem;">
+                    
+                    <!-- Shipping Information -->
+                    <div style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: white; background: #111111; padding: 1rem 1.5rem; border-radius: 8px; margin: 0 0 1.5rem 0;">📍 Shipping Information</h3>
+                        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem; background: #f8f9fa; padding: 2rem; border-radius: 8px;">
+                            <div>
+                                <p style="color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;">Full Name</p>
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 0; color: #111;">{{ name }}</p>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;">Email Address</p>
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 0; color: #111;">{{ email }}</p>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;">Phone Number</p>
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 0; color: #111;">{{ phone }}</p>
+                            </div>
+                            <div>
+                                <p style="color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px; margin: 0 0 0.5rem 0;">Shipping Address</p>
+                                <p style="font-size: 1.2rem; font-weight: 700; margin: 0; color: #111; line-height: 1.5;">{{ address }}</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Order Items -->
+                    <div style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: white; background: #111111; padding: 1rem 1.5rem; border-radius: 8px; margin: 0 0 1.5rem 0;">🛒 Order Items</h3>
+                        <div style="background: #f8f9fa; border-radius: 8px; overflow: hidden;">
+                            {% for item in cart_items %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.5rem 2rem; border-bottom: 1px solid #ddd; {% if loop.last %}border-bottom: none;{% endif %}">
+                                <div>
+                                    <p style="margin: 0; font-weight: 700; font-size: 1.1rem; color: #111;">{{ item.name }}</p>
+                                    <p style="margin: 0.5rem 0 0 0; color: #666; font-size: 0.95rem;">Quantity: <span style="font-weight: 600;">{{ item.quantity }}</span></p>
+                                </div>
+                                <p style="margin: 0; font-weight: 700; font-size: 1.3rem; color: #059669;">${{ "%.2f"|format(item.price * item.quantity) }}</p>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+
+                    <!-- Price Breakdown -->
+                    <div style="margin-bottom: 2.5rem;">
+                        <h3 style="font-size: 1.4rem; font-weight: 700; margin-bottom: 1.5rem; color: white; background: #111111; padding: 1rem 1.5rem; border-radius: 8px; margin: 0 0 1.5rem 0;">💰 Price Breakdown</h3>
+                        <div style="background: linear-gradient(135deg, #f0f9ff 0%, #ecf5ff 100%); padding: 2rem; border-radius: 8px; border-left: 5px solid #059669;">
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; font-size: 1.1rem;">
+                                <span style="color: #666;">Subtotal</span>
+                                <span style="font-weight: 600; color: #111;">${{ "%.2f"|format(subtotal) }}</span>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; font-size: 1.1rem;">
+                                <span style="color: #666;">Shipping Cost</span>
+                                <span style="font-weight: 600; color: #059669; font-size: 1.2rem;">FREE</span>
+                            </div>
+                            {% if coupon_code %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 0.75rem 0; font-size: 1.1rem; color: #059669; font-weight: 600;">
+                                <span>Discount Applied ({{ coupon_code }})</span>
+                                <span>-${{ "%.2f"|format(discount_amount) }}</span>
+                            </div>
+                            {% endif %}
+                            <div style="display: flex; justify-content: space-between; align-items: center; padding: 1.25rem 0; margin-top: 1rem; border-top: 2px solid rgba(5, 150, 105, 0.3); font-size: 1.4rem; font-weight: 700;">
+                                <span style="color: #111;">Total Amount</span>
+                                <span style="color: #059669;">${{ "%.2f"|format(subtotal - discount_amount) }}</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div style="display: flex; gap: 1.5rem; margin: 3rem 0; flex-wrap: wrap; @media (max-width: 600px) { flex-direction: column; }">
+                        <a href="{{ url_for('checkout') }}" style="flex: 1; min-width: 150px; padding: 1rem 1.5rem; background: #f0f0f0; color: #111; text-decoration: none; border-radius: 8px; text-align: center; font-weight: 600; font-size: 1.05rem; border: 2px solid #ddd; transition: all 0.3s; cursor: pointer;" 
+                           onmouseover="this.style.background='#e0e0e0'; this.style.borderColor='#999';"
+                           onmouseout="this.style.background='#f0f0f0'; this.style.borderColor='#ddd';">
+                            ← Edit Information
+                        </a>
+                        <form method="POST" action="{{ url_for('place_order') }}" style="flex: 1; min-width: 150px;">
+                            <button type="submit" id="payBtn" style="width: 100%; padding: 1rem 1.5rem; background: linear-gradient(135deg, #111111 0%, #333333 100%); color: white; border: none; border-radius: 8px; font-weight: 700; font-size: 1.05rem; cursor: pointer; transition: all 0.3s; box-shadow: 0 4px 15px rgba(0,0,0,0.2);"
+                                        onmouseover="if(!this.disabled) { this.style.boxShadow='0 6px 20px rgba(0,0,0,0.3)'; }"
+                                        onmouseout="if(!this.disabled) { this.style.boxShadow='0 4px 15px rgba(0,0,0,0.2)'; }"
+                                        onclick="showPaymentSpinner(event)">
+                                ✓ Confirm & Pay
+                            </button>
+                        </form>
+                    </div>
+
+                    <!-- Security Badges -->
+                    <div style="display: flex; gap: 2rem; margin-top: 2rem; padding-top: 2rem; border-top: 2px solid #e5e7eb; justify-content: center; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: #059669; font-weight: 600;">
+                            <i class="fa-solid fa-lock" style="font-size: 1.3rem;"></i>
+                            <span>SSL Secure</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: #059669; font-weight: 600;">
+                            <i class="fa-solid fa-shield-halved" style="font-size: 1.3rem;"></i>
+                            <span>Secure Payment</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.75rem; font-size: 0.95rem; color: #059669; font-weight: 600;">
+                            <i class="fa-solid fa-undo" style="font-size: 1.3rem;"></i>
+                            <span>30-Day Returns</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function showPaymentSpinner(event) {
+        const btn = document.getElementById('payBtn');
+        btn.disabled = true;
+        btn.style.opacity = '0.7';
+        btn.innerHTML = '<i class="fas fa-spinner fa-spin" style="margin-right: 0.5rem;"></i>Processing Payment...';
+        
+        // Allow form to submit after showing spinner
+        setTimeout(() => {
+            btn.closest('form').submit();
+        }, 500);
+    }
+</script>
+{% endblock %}

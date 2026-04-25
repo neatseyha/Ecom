@@ -1,0 +1,59 @@
+{% extends 'auth/base_auth.html' %}
+
+{% block title %}Admin Login - FashionHub{% endblock %}
+
+{% block content %}
+<div class="card p-4">
+    <div class="brand">
+        <div class="logo">FH</div>
+        <div>
+            <div style="font-weight:700;">FashionHub</div>
+            <div style="font-size:0.85rem; color:var(--text-secondary);">Admin Panel</div>
+        </div>
+    </div>
+
+    <h4 class="mb-3">Admin / Staff Login</h4>
+    {% if message %}
+        <div class="alert alert-{{ message_type }}">{{ message }}</div>
+    {% endif %}
+    <form method="post" action="{{ url_for('auth.login') }}">
+        <input type="hidden" name="next" value="{{ request.args.get('next') or '' }}">
+        <div class="mb-3">
+            <label class="form-label">Username or Email</label>
+            <input class="form-control" name="username" required autofocus>
+        </div>
+        <div class="mb-3 position-relative">
+            <label class="form-label">Password</label>
+            <div style="display:flex; gap:8px; align-items:center;">
+                <input id="loginPassword" class="form-control" type="password" name="password" required>
+                <button id="togglePassword" type="button" class="btn btn-outline" title="Show password" style="height:40px;"> <i class="fas fa-eye"></i></button>
+            </div>
+        </div>
+        <div class="mb-3 d-flex align-items-center justify-content-between">
+            <div class="form-check">
+                <input class="form-check-input" type="checkbox" id="remember" name="remember">
+                <label class="form-check-label" for="remember">Remember me</label>
+            </div>
+            <a href="#" class="text-muted" style="font-size:0.9rem;">Forgot password?</a>
+        </div>
+        <div class="d-flex justify-content-between align-items-center">
+            <button class="btn btn-primary" type="submit">Sign in</button>
+        </div>
+    </form>
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggle = document.getElementById('togglePassword');
+        const pwd = document.getElementById('loginPassword');
+        if (toggle && pwd) {
+            toggle.addEventListener('click', function() {
+                if (pwd.type === 'password') { pwd.type = 'text'; toggle.innerHTML = '<i class="fas fa-eye-slash"></i>'; }
+                else { pwd.type = 'password'; toggle.innerHTML = '<i class="fas fa-eye"></i>'; }
+            });
+        }
+    });
+</script>
+{% endblock %}
+</div>
+{% endblock %}

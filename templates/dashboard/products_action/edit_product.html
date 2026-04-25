@@ -1,0 +1,100 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Edit Product - FashionHub Admin{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('product_module.products_route') }}">Products</a></li>
+        <li class="breadcrumb-item active">Edit Product</li>
+    </ol>
+</nav>
+
+<div class="form-card">
+    <div class="page-header" style="padding: 0; background: transparent; border: 0; box-shadow: none; margin-bottom: 24px;">
+        <div>
+            <div class="page-kicker">Catalog Editor</div>
+            <h1 class="page-title"><i class="fas fa-pen-to-square"></i>Edit product</h1>
+            <p class="page-subtitle">Update product details in the refreshed editor without changing form submission behavior.</p>
+        </div>
+    </div>
+
+    <div class="info-section">
+        <i class="fas fa-info-circle"></i> Update the product information below. All fields marked with * are required.
+    </div>
+
+    <form method="POST" enctype="multipart/form-data">
+        <div class="form-group d-flex flex-column align-items-center justify-content-center">
+            <div class="image-preview" id="imagePreview">
+                {% if product.image %}
+                    <img src="{{ url_for('static', filename='upload/' + product.image) }}" alt="Product Image">
+                {% else %}
+                <div class="image-preview-placeholder">
+                    <i class="fas fa-cloud-upload-alt"></i>
+                    <p>Click to upload or drag and drop</p>
+                </div>
+                {% endif %}
+            </div>
+            <input type="file" class="form-control" id="imageInput" name="image" accept="image/*" style="display: none;">
+            <div class="help-text">JPG, PNG, GIF up to 5MB. Leave empty to keep current image.</div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-control" name="product_name" placeholder="Enter product name" value="{{ product.product_name }}" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select class="form-select" name="category_id" required>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}" {% if product.category_id == category.id %}selected{% endif %}>{{ category.category_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Price *</label>
+                <input type="number" class="form-control" name="price" placeholder="0.00" step="0.01" value="{{ product.price }}" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Stock Quantity *</label>
+                <input type="number" class="form-control" name="stock" placeholder="0" min="0" value="{{ product.stock }}" required>
+                <div class="help-text">The number of items in stock</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status *</label>
+                <select class="form-select" name="status" required>
+                    <option value="instock" {% if product.status == 'instock' %}selected{% endif %}>In Stock</option>
+                    <option value="low-stock" {% if product.status == 'low-stock' %}selected{% endif %}>Low Stock</option>
+                    <option value="out-of-stock" {% if product.status == 'out-of-stock' %}selected{% endif %}>Out of Stock</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group form-row full">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="4" placeholder="Enter product description...">{{ product.description }}</textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('product_module.products_route') }}" class="btn btn-secondary">Cancel</a>
+            <a href="#" class="btn btn-danger" onclick="confirmDelete(event, '{{ product.id }}');"><i class="fas fa-trash"></i> Delete</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Save Changes</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+            setupImagePreview('imagePreview', 'imageInput');
+        });
+    } else {
+        setupImagePreview('imagePreview', 'imageInput');
+    }
+</script>
+{% endblock %}

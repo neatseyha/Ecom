@@ -1,0 +1,112 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Category Management - FashionHub Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Organization</div>
+        <h1 class="page-title"><i class="fas fa-barcode"></i>Category management</h1>
+        <p class="page-subtitle">The same add, edit, and delete actions with a more polished card layout.</p>
+    </div>
+    <button class="btn-add" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+        <i class="fas fa-plus"></i> Add Category
+    </button>
+</div>
+
+<div class="categories-grid">
+    {% for category in categories %}
+    <div class="category-card">
+        <div class="category-icon"><i class="fas fa-layer-group"></i></div>
+        <div class="category-title">{{ category.category_name }}</div>
+        <div class="category-count">{{ category.product_count }} products</div>
+        <div class="category-actions">
+            <button class="btn-category btn-edit" data-bs-toggle="modal" data-bs-target="#editCategoryModal-{{ category.id }}">
+                <i class="fas fa-edit"></i> Edit
+            </button>
+            <form method="post" action="{{ url_for('category_module.delete_category', category_id=category.id) }}" style="display:inline;" onsubmit="confirmDeleteCategory(event, this);">
+                <button type="submit" class="btn-category btn-delete">
+                    <i class="fas fa-trash"></i> Delete
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal fade" id="editCategoryModal-{{ category.id }}" tabindex="-1">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit Category</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" action="{{ url_for('category_module.edit_category', category_id=category.id) }}">
+                        <div class="mb-3">
+                            <label class="form-label">Category Name</label>
+                            <input type="text" name="category_name" class="form-control" value="{{ category.category_name }}" required>
+                        </div>
+                        <div class="mb-3">
+                            <label class="form-label">Description</label>
+                            <textarea name="description" class="form-control" rows="3">{{ category.description or '' }}</textarea>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="submit" class="btn btn-primary">Save Changes</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+
+<div class="modal fade" id="addCategoryModal" tabindex="-1">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Add New Category</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" action="{{ url_for('category_module.add_category') }}">
+                    <div class="mb-3">
+                        <label class="form-label">Category Name</label>
+                        <input type="text" name="category_name" class="form-control" placeholder="Enter category name" required>
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label">Description</label>
+                        <textarea name="description" class="form-control" rows="3" placeholder="Enter category description"></textarea>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Add Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+function confirmDeleteCategory(event, form) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Delete Category?',
+        text: 'Are you sure you want to delete this category? Products might be affected.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d32f2f',
+        cancelButtonColor: '#9e9e9e',
+        confirmButtonText: 'Yes, Delete',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
+{% endblock %}

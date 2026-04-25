@@ -1,0 +1,246 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Clothery{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container">
+        <div class="row g-3">
+            <div class="col-lg-8">
+                <div class="hero-banner main-banner" style="background-image: url('{{ url_for('static', filename='banner/banner5.jpg') }}'); background-size: cover; background-position: center;">
+                    <div class="banner-content">
+                        <span class="badge bg-danger rounded-0 px-3 py-2 mb-3">MEGA SALE</span>
+                        <h2>Autumn Collection<br>2026</h2>
+                        <p>Discover the latest fashion trends and get up to 50% off on selected modern apparel.</p>
+                        <a href="{{ url_for('shop') }}" class="btn btn-primary">Shop Collection <i class="fa-solid fa-arrow-right ms-2"></i></a>
+                    </div>
+                </div>
+            </div>
+            <div class="col-lg-4">
+                <div class="d-flex flex-column h-100 gap-3">
+                    <div class="hero-banner small-banner" style="background-image: url('{{ url_for('static', filename='banner/banner4.jpg') }}'); background-size: cover; background-position: center;">
+                        <div class="banner-content">
+                            <h4>Streetwear Essentials</h4>
+                            <p class="small mb-3 text-light">Upgrade your casual look</p>
+                            <a href="{{ url_for('shop') }}" class="btn btn-outline-dark btn-sm rounded-0">Explore Men</a>
+                        </div>
+                    </div>
+                    <div class="hero-banner small-banner dark-banner" style="background-image: url('{{ url_for('static', filename='banner/banner3.jpg') }}'); background-size: cover; background-position: center;">
+                        <div class="banner-content">
+                            <h4>Premium Collection</h4>
+                            <p class="small mb-3">Elegance Redefined</p>
+                            <a href="{{ url_for('shop') }}" class="btn btn-light rounded-0">Shop Now</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="info-categories py-5 bg-surface">
+    <div class="container">
+        <div class="row g-3 text-center">
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('shop') }}" class="category-card d-block p-4 bg-white shadow-sm rounded-3 transition-hover">
+                    <i class="fa-solid fa-shirt fs-1 mb-3 text-primary"></i>
+                    <h5 class="mb-0 fs-6 text-uppercase letter-spacing-1">Tops & Tees</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('shop') }}" class="category-card d-block p-4 bg-white shadow-sm rounded-3 transition-hover">
+                    <i class="fa-solid fa-person-running fs-1 mb-3 text-primary"></i>
+                    <h5 class="mb-0 fs-6 text-uppercase letter-spacing-1">Activewear</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('shop') }}" class="category-card d-block p-4 bg-white shadow-sm rounded-3 transition-hover">
+                    <i class="fa-solid fa-glasses fs-1 mb-3 text-primary"></i>
+                    <h5 class="mb-0 fs-6 text-uppercase letter-spacing-1">Accessories</h5>
+                </a>
+            </div>
+            <div class="col-6 col-md-3">
+                <a href="{{ url_for('shop') }}" class="category-card d-block p-4 bg-white shadow-sm rounded-3 transition-hover">
+                    <i class="fa-solid fa-shoe-prints fs-1 mb-3 text-primary"></i>
+                    <h5 class="mb-0 fs-6 text-uppercase letter-spacing-1">Footwear</h5>
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="trending-section py-5">
+    <div class="container pb-4">
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+            <div>
+                <span class="trending-label mb-1">Stay updated</span>
+                <h2 class="mb-0 fw-bold fs-2">Trending This Week</h2>
+            </div>
+            <a href="{{ url_for('shop') }}" class="btn btn-outline-light d-none d-md-inline-flex mb-1">View All</a>
+        </div>
+        
+        <div class="row g-4">
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="trending-item">
+                    <div class="trending-img-wrap mb-3 rounded-3 overflow-hidden position-relative">
+                        <img src="{{ url_for('static', filename='banner/summer.jpg') }}" alt="Summer Vibes" class="w-100" style="height: 380px; object-fit: cover;">
+                        <a href="{{ url_for('shop') }}" class="position-absolute w-100 h-100 top-0 start-0 z-3"></a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('shop') }}" class="fw-bold fs-5 text-decoration-none">Summer Vibes</a>
+                        <i class="fa-solid fa-arrow-right text-muted"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="trending-item">
+                    <div class="trending-img-wrap mb-3 rounded-3 overflow-hidden position-relative">
+                        <img src="{{ url_for('static', filename='banner/CozyKnitwear.jpg') }}" alt="Cozy Knitwear" class="w-100" style="height: 380px; object-fit: cover;">
+                        <a href="{{ url_for('shop') }}" class="position-absolute w-100 h-100 top-0 start-0 z-3"></a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('shop') }}" class="fw-bold fs-5 text-decoration-none">Cozy Knitwear</a>
+                        <i class="fa-solid fa-arrow-right text-muted"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="trending-item">
+                    <div class="trending-img-wrap mb-3 rounded-3 overflow-hidden position-relative">
+                        <img src="{{ url_for('static', filename='banner/ClassicDenim.jpg') }}" alt="Classic Denim" class="w-100" style="height: 380px; object-fit: cover;">
+                        <a href="{{ url_for('shop') }}" class="position-absolute w-100 h-100 top-0 start-0 z-3"></a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('shop') }}" class="fw-bold fs-5 text-decoration-none">Classic Denim</a>
+                        <i class="fa-solid fa-arrow-right text-muted"></i>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <div class="trending-item">
+                    <div class="trending-img-wrap mb-3 rounded-3 overflow-hidden position-relative">
+                        <img src="{{ url_for('static', filename='banner/FormalCollection.jpg') }}" alt="Formal Collection" class="w-100" style="height: 380px; object-fit: cover;">
+                        <a href="{{ url_for('shop') }}" class="position-absolute w-100 h-100 top-0 start-0 z-3"></a>
+                    </div>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <a href="{{ url_for('shop') }}" class="fw-bold fs-5 text-decoration-none">Formal Collection</a>
+                        <i class="fa-solid fa-arrow-right text-muted"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="brand-strip py-4">
+    <div class="container">
+        <div class="brand-logos">
+            <img src="{{ url_for('static', filename='brands/adidas.svg') }}" alt="Adidas">
+            <img src="{{ url_for('static', filename='brands/gucci.svg') }}" alt="Gucci">
+            <img src="{{ url_for('static', filename='brands/nike.svg') }}" alt="Nike">
+            <img src="{{ url_for('static', filename='brands/lv.svg') }}" alt="LV">
+            <img src="{{ url_for('static', filename='brands/zara.svg') }}" alt="Zara">
+        </div>
+    </div>
+</section>
+
+<section class="featured-products bg-surface pt-5 pb-5">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-end mb-4 border-bottom pb-2">
+            <h2 class="mb-0 fw-bold fs-2">Featured Products</h2>
+        </div>
+        <div class="row g-4">
+            {% for product in featured_products %}
+            <div class="col-lg-3 col-md-6 col-12">
+                <div class="product-card border-0 bg-transparent">
+                    <div class="product-image rounded-3 position-relative">
+                        <span class="product-badge bg-primary">NEW</span>
+                        <div class="product-card-actions">
+                            <button type="button" class="wishlist-btn {% if product.id in wishlist_product_ids %}in-wishlist{% endif %}" id="wishlist-{{ product.id }}" onclick='addToWishlist({{ product.id }}, {{ product.name|tojson }})'>
+                                <i class="{% if product.id in wishlist_product_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                            </button>
+                            <button type="button" class="wishlist-btn" onclick="showQuickView({{ product.id }})" style="border-color: var(--border-color); color: var(--text-muted);">
+                                <i class="fa-regular fa-eye"></i>
+                            </button>
+                        </div>
+                        <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                            <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                        </a>
+                    </div>
+                    <div class="card-body px-1 pb-1 text-start">
+                        <div class="stock-status stock-in mb-2">In Stock</div>
+                        <h5 class="card-title text-truncate fs-6 fw-bold mb-1">
+                            <a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a>
+                        </h5>
+                        <p class="text-muted small mb-2 text-truncate">{{ product.description }}</p>
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                            <div class="price fs-6 fw-bold">
+                                ${{ "%.2f"|format(product.price) }}
+                            </div>
+                            <div class="rating-stars">
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <i class="fa-solid fa-star"></i>
+                                <span class="rating-count ms-1">(5.0)</span>
+                            </div>
+                        </div>
+                        <form method="POST" action="{{ url_for('add_to_cart') }}" style="width: 100%;">
+                            <input type="hidden" name="product_id" value="{{ product.id }}">
+                            <input type="hidden" name="quantity" value="1">
+                            <button type="submit" class="btn btn-action w-100" style="height: 40px; font-size: 14px;">
+                                <i class="fa-solid fa-shopping-bag me-2"></i>Add to Cart
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
+<section class="features border-top pt-5 pb-5">
+    <div class="container">
+        <div class="row g-4 text-center">
+            <div class="col-6 col-lg-3">
+                <div class="feature-item px-3">
+                    <div class="mb-3 d-inline-flex border border-2 border-primary rounded-circle p-3 text-primary">
+                        <i class="fa-solid fa-truck-fast fs-3"></i>
+                    </div>
+                    <h3 class="fs-5 mb-2 fw-bold">Free Shipping</h3>
+                    <p class="text-muted small mb-0">On orders over $100</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="feature-item px-3">
+                    <div class="mb-3 d-inline-flex border border-2 border-primary rounded-circle p-3 text-primary">
+                        <i class="fa-solid fa-shield-halved fs-3"></i>
+                    </div>
+                    <h3 class="fs-5 mb-2 fw-bold">Secure Payment</h3>
+                    <p class="text-muted small mb-0">100% protected</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="feature-item px-3">
+                    <div class="mb-3 d-inline-flex border border-2 border-primary rounded-circle p-3 text-primary">
+                        <i class="fa-solid fa-rotate-left fs-3"></i>
+                    </div>
+                    <h3 class="fs-5 mb-2 fw-bold">Easy Returns</h3>
+                    <p class="text-muted small mb-0">30-day policy</p>
+                </div>
+            </div>
+            <div class="col-6 col-lg-3">
+                <div class="feature-item px-3">
+                    <div class="mb-3 d-inline-flex border border-2 border-primary rounded-circle p-3 text-primary">
+                        <i class="fa-solid fa-headset fs-3"></i>
+                    </div>
+                    <h3 class="fs-5 mb-2 fw-bold">24/7 Support</h3>
+                    <p class="text-muted small mb-0">Always here to help</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

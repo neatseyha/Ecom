@@ -1,0 +1,321 @@
+{% extends "base.html" %}
+
+{% block title %}Checkout - TechShop{% endblock %}
+
+{% block content %}
+<section class="page-header compact-page-header">
+    <div class="container">
+        <h1>Checkout</h1>
+    </div>
+</section>
+
+<section class="checkout-section" style="margin-top: 4rem; margin-bottom: 4rem;">
+    <div class="container">
+        {% if error %}
+        <div class="alert alert-error">{{ error }}</div>
+        {% endif %}
+
+        {% if not session.get('user_id') %}
+        <div style="background: var(--bg-surface); border: 1px solid var(--border-color); border-top: 3px solid var(--primary); padding: 1.5rem; text-align: center; margin-bottom: 2rem;">
+            <p style="margin: 0; color: var(--text-muted);">Returning customer? <a href="{{ url_for('login') }}" style="color: var(--primary); font-weight: 600; text-decoration: underline;">Click here to login</a> for faster checkout.</p>
+        </div>
+        {% endif %}
+
+        <div class="checkout-container checkout-shell">
+            <div class="checkout-form">
+                <h2>Shipping Information</h2>
+                
+                <!-- Display Customer Info (Read-only) -->
+                <div class="customer-info-card">
+                    <h3 style="margin-top: 0; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 600; color: #333;">Your Information</h3>
+                    <div class="customer-info-grid">
+                        <div>
+                            <p style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Full Name</p>
+                            <p style="margin: 0; font-size: 1rem; font-weight: 600; color: #111;">{% if user %}{{ user.first_name }} {{ user.last_name }}{% else %}Guest{% endif %}</p>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Email</p>
+                            <p style="margin: 0; font-size: 1rem; font-weight: 600; color: #111; word-break: break-all;">{% if user %}{{ user.email }}{% else %}Not provided{% endif %}</p>
+                        </div>
+                        <div>
+                            <p style="margin: 0 0 0.5rem 0; color: #666; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 0.5px;">Phone</p>
+                            <p style="margin: 0; font-size: 1rem; font-weight: 600; color: #111;">{% if user %}{{ user.phone }}{% else %}Not provided{% endif %}</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Address Input Form -->
+                <form id="checkoutForm" method="POST" action="{{ url_for('place_order') }}">
+                    <!-- Hidden fields for customer info -->
+                    <input type="hidden" name="name" value="{% if user %}{{ user.first_name }} {{ user.last_name }}{% endif %}">
+                    <input type="hidden" name="email" value="{% if user %}{{ user.email }}{% endif %}">
+                    <input type="hidden" name="phone" value="{% if user %}{{ user.phone }}{% endif %}">
+
+                    <div class="form-group">
+                        <label for="address">Shipping Address *</label>
+                        <textarea id="address" name="address" rows="4" placeholder="Enter your complete shipping address (street, city, state, zip)" required>{% if user %}{{ user.address }}{% endif %}</textarea>
+                    </div>
+
+                    <button type="button" class="btn btn-primary btn-block" style="cursor: pointer;" onclick="validateCheckoutForm()">Review Order</button>
+                    
+                    <div style="display: flex; gap: 1rem; margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-color); justify-content: center; flex-wrap: wrap;">
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-lock text-success"></i>
+                            <span>SSL Secure</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-shield-halved text-success"></i>
+                            <span>Secure Checkout</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 0.5rem; font-size: 0.85rem; color: var(--text-muted);">
+                            <i class="fa-solid fa-undo text-success"></i>
+                            <span>30-Day Returns</span>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <div class="order-summary checkout-summary-card">
+                <h2>Order Summary</h2>
+                <div class="summary-items">
+                    {% for item in cart_items %}
+                    <div class="summary-item">
+                        <span>{{ item.name }} x {{ item.quantity }}</span>
+                        <span>${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+                <hr style="margin: 1rem 0;">
+                
+                {% set calc = namespace(subtotal=0) %}
+                {% for item in cart_items %}
+                    {% set calc.subtotal = calc.subtotal + (item.price * item.quantity) %}
+                {% endfor %}
+                {% set subtotal = calc.subtotal %}
+                
+                <div class="summary-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                    <span style="color: var(--text-muted);">Subtotal</span>
+                    <span id="checkout-subtotal">${{ "%.2f"|format(subtotal) }}</span>
+                </div>
+                
+                <div class="summary-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                    <span style="color: var(--text-muted);">Shipping</span>
+                    <span style="color: var(--text-muted);">Free</span>
+                </div>
+
+                <div class="summary-row" style="display: flex; justify-content: space-between; padding: 0.75rem 0;">
+                    <span style="color: var(--text-muted);">Tax</span>
+                    <span style="color: var(--text-muted);">$0.00</span>
+                </div>
+
+                <div class="coupon-section" style="margin: 0.75rem 0 1.25rem 0; padding: 1rem; background: var(--bg-surface); border-radius: 6px; border: 1px solid var(--border-color);">
+                    <label style="font-weight: 600; font-size: 0.9rem; margin-bottom: 0.5rem; display: block;">Have a Promo Code?</label>
+                    <div style="display: flex; gap: 0.5rem;">
+                        <input type="text" id="coupon-code" placeholder="Enter coupon code" style="flex-grow: 1; padding: 0.75rem; border: 1px solid var(--border-color); border-radius: 4px; font-size: 0.9rem;">
+                        <button type="button" onclick="applyCoupon()" class="btn btn-action" style="padding: 0.75rem 1.5rem; font-size: 0.85rem; white-space: nowrap;">
+                            Apply
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="summary-row" id="discount-row" style="display: none; justify-content: space-between; padding: 0.75rem 0; color: #059669; font-weight: 600;">
+                    <span>Discount</span>
+                    <span id="discount-amount">-$0.00</span>
+                </div>
+                
+                <hr style="margin: 1rem 0;">
+                
+                <div class="summary-row total" style="display: flex; justify-content: space-between; padding: 1rem 0; font-size: 1.2rem; font-weight: 700;">
+                    <span>Total:</span>
+                    <span id="checkout-total">${{ "%.2f"|format(subtotal) }}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    let checkoutFormData = null;
+    
+    function validateCheckoutForm() {
+        // Get form values
+        const form = document.getElementById('checkoutForm');
+        checkoutFormData = new FormData(form);
+        
+        // Show loading state
+        Swal.fire({
+            title: 'Please wait...',
+            html: 'Preparing your order...',
+            icon: 'info',
+            allowOutsideClick: false,
+            didOpen: async () => {
+                Swal.showLoading();
+                
+                try {
+                    const response = await fetch('{{ url_for("api_order_preview") }}', {
+                        method: 'POST',
+                        body: checkoutFormData
+                    });
+                    
+                    const data = await response.json();
+                    
+                    if (!response.ok) {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: data.error || 'Failed to prepare order',
+                            confirmButtonColor: '#111111'
+                        });
+                        return;
+                    }
+                    
+                    // Build order summary HTML
+                    const confirmHtml = `
+                        <div style="text-align: left; font-size: 0.95rem;">
+                            <div style="background: #f8f9fa; padding: 0.9rem 1rem; border-radius: 8px; margin-bottom: 0.8rem;">
+                                ${data.items.map(i => `<div style="display:flex;justify-content:space-between;padding:0.25rem 0;border-bottom:1px solid #eee;"><span style="color:#333;">${i.name} <span style="color:#999;">×${i.quantity}</span></span><span style="font-weight:600;">$${(i.price*i.quantity).toFixed(2)}</span></div>`).join('')}
+                            </div>
+                            <div style="background: #f8f9fa; padding: 0.9rem 1rem; border-radius: 8px; margin-bottom: 0.8rem; color: #444; line-height: 1.6;">
+                                <span><strong>${data.name}</strong> · ${data.phone}</span><br>
+                                <span style="color:#666;">${data.address}</span>
+                            </div>
+                            <div style="background: #f0fdf4; padding: 0.9rem 1rem; border-radius: 8px; border-left: 3px solid #059669; display:flex; justify-content:space-between; align-items:center;">
+                                <span style="color:#111; font-weight:600;">Total</span>
+                                <span style="color:#059669; font-weight:700; font-size:1.35rem;">$${data.total}</span>
+                            </div>
+                        </div>
+                    `;
+                    
+                    Swal.fire({
+                        title: '✓ Confirm Your Order',
+                        html: confirmHtml,
+                        icon: false,
+                        showCancelButton: true,
+                        confirmButtonText: 'Confirm & Proceed',
+                        cancelButtonText: 'Cancel',
+                        confirmButtonColor: '#059669',
+                        scrollbarPadding: false,
+                        heightAuto: false,
+                        cancelButtonColor: '#f0f0f0',
+                        confirmButtonTextColor: 'white',
+                        cancelButtonTextColor: '#111',
+                        allowOutsideClick: false,
+                        width: 760,
+                        padding: '2rem',
+                        customClass: {
+                            popup: 'checkout-confirm-popup',
+                            title: 'checkout-confirm-title'
+                        }
+                    }).then(result => {
+                        if (result.isConfirmed) {
+                            document.getElementById('checkoutForm').submit();
+                        }
+                    });
+                } catch (error) {
+                    console.error('Error:', error);
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Failed to prepare order. Please try again.',
+                        confirmButtonColor: '#111111'
+                    });
+                }
+            }
+        });
+    }
+
+    // Display coupon/discount if applied (from cart page)
+    document.addEventListener('DOMContentLoaded', function() {
+        const discountData = sessionStorage.getItem('appliedDiscount');
+        
+        if (discountData) {
+            try {
+                const discount = JSON.parse(discountData);
+                const subtotal = parseFloat(document.getElementById('checkout-subtotal').textContent.replace('$', ''));
+                const discountAmount = subtotal * discount.percent;
+                const finalTotal = subtotal - discountAmount;
+                
+                // Show discount row
+                document.getElementById('discount-row').style.display = 'flex';
+                document.getElementById('discount-amount').textContent = '-$' + discountAmount.toFixed(2);
+                document.getElementById('checkout-total').textContent = '$' + finalTotal.toFixed(2);
+                
+                // Update discount row to show coupon code
+                const discountRow = document.getElementById('discount-row');
+                discountRow.innerHTML = `
+                    <span>Discount (${discount.code})</span>
+                    <span>-$${discountAmount.toFixed(2)}</span>
+                `;
+                console.log('✅ Coupon applied: ' + discount.code);
+            } catch (e) {
+                console.log('No discount applied');
+            }
+        }
+    });
+
+    function applyCoupon() {
+        const couponInput = document.getElementById('coupon-code');
+        const couponCode = couponInput.value.trim();
+
+        if (!couponCode) {
+            Swal.fire({
+                icon: 'warning',
+                title: 'Coupon Code Required',
+                text: 'Please enter a coupon code.',
+                confirmButtonText: 'OK'
+            });
+            return;
+        }
+
+        const validCoupons = {
+            'SAVE10': 0.10,
+            'SAVE20': 0.20,
+            'WELCOME': 0.15,
+            'SUMMER': 0.25
+        };
+
+        const normalizedCode = couponCode.toUpperCase();
+
+        if (!validCoupons[normalizedCode]) {
+            Swal.fire({
+                icon: 'error',
+                title: 'Invalid Coupon',
+                text: 'This coupon code is not valid.',
+                confirmButtonText: 'Try Again'
+            });
+            return;
+        }
+
+        const discountPercent = validCoupons[normalizedCode];
+        const subtotalElement = document.getElementById('checkout-subtotal');
+        const subtotal = parseFloat(subtotalElement.textContent.replace('$', ''));
+        const discountAmount = subtotal * discountPercent;
+        const finalTotal = subtotal - discountAmount;
+
+        sessionStorage.setItem('appliedDiscount', JSON.stringify({
+            code: normalizedCode,
+            percent: discountPercent,
+            amount: discountAmount
+        }));
+
+        document.getElementById('discount-row').style.display = 'flex';
+        document.getElementById('discount-row').innerHTML = `
+            <span>Discount (${normalizedCode})</span>
+            <span>-$${discountAmount.toFixed(2)}</span>
+        `;
+        document.getElementById('checkout-total').textContent = '$' + finalTotal.toFixed(2);
+
+        couponInput.disabled = true;
+        document.querySelector('button[onclick="applyCoupon()"]').disabled = true;
+
+        Swal.fire({
+            icon: 'success',
+            title: 'Coupon Applied!',
+            text: `You saved $${discountAmount.toFixed(2)} with code: ${normalizedCode}`,
+            confirmButtonText: 'Great'
+        });
+    }
+</script>
+{% endblock %}

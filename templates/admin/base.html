@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Dashboard - Clothery Admin{% endblock %}</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{{ url_for('static', filename='admin/css/admin.css') }}">
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <div class="dashboard-wrapper">
+        {% include 'admin/components/sidebar.html' %}
+        
+        <div class="main-content">
+            {% include 'admin/components/topbar.html' %}
+            
+            <div class="content-area">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const message = urlParams.get('message');
+            const messageType = urlParams.get('type');
+            
+            if (message && messageType) {
+                const icon = messageType === 'success' ? 'success' : messageType === 'error' ? 'error' : 'info';
+                const title = messageType === 'success' ? 'Success!' : messageType === 'error' ? 'Error!' : 'Info';
+                
+                Swal.fire({
+                    icon: icon,
+                    title: title,
+                    text: message,
+                    timer: 2000,
+                    showConfirmButton: false
+                });
+                
+                window.history.replaceState({}, document.title, window.location.pathname);
+            }
+        });
+
+        function showAlert(type, message) {
+            const icon = type === 'success' ? 'success' : type === 'error' ? 'error' : 'info';
+            const title = type === 'success' ? 'Success!' : type === 'error' ? 'Error!' : 'Info';
+            
+            Swal.fire({
+                icon: icon,
+                title: title,
+                text: message,
+                timer: 2000,
+                showConfirmButton: false
+            });
+        }
+    </script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

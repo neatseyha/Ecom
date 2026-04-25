@@ -1,0 +1,130 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Dashboard - FashionHub Admin{% endblock %}
+
+{% block content %}
+<section class="overview-hero">
+    <div class="page-kicker">Operations Snapshot</div>
+    <div class="page-header stack-mobile" style="margin-top: 18px; margin-bottom: 0;">
+        <div>
+            <h1 class="page-title"><i class="fas fa-compass"></i>Business overview</h1>
+            <p class="page-subtitle">A cleaner command center for monitoring orders, revenue, customers, and inventory.</p>
+        </div>
+        <div class="quick-actions">
+            <button class="quick-action-btn" onclick="navigateTo('orders')"><i class="fas fa-plus"></i>New Order</button>
+            <button class="quick-action-btn" onclick="navigateTo('customers')"><i class="fas fa-user-plus"></i>Add Customer</button>
+            <button class="quick-action-btn" onclick="navigateTo('products')"><i class="fas fa-box"></i>New Product</button>
+            <button class="quick-action-btn" onclick="navigateTo('analytics')"><i class="fas fa-chart-bar"></i>View Reports</button>
+        </div>
+    </div>
+</section>
+
+<div class="stats-container">
+    <div class="stat-card orders">
+        <div class="stat-icon"><i class="fas fa-shopping-cart"></i></div>
+        <div class="stat-content">
+            <div class="stat-label">Total Orders</div>
+            <div class="stat-value">{{ stats.total_orders }}</div>
+            <div class="stat-change positive"><i class="fas fa-arrow-trend-up"></i>Live order count</div>
+        </div>
+    </div>
+    <div class="stat-card revenue">
+        <div class="stat-icon"><i class="fas fa-dollar-sign"></i></div>
+        <div class="stat-content">
+            <div class="stat-label">Revenue</div>
+            <div class="stat-value">{{ stats.total_revenue }}</div>
+            <div class="stat-change positive"><i class="fas fa-wallet"></i>Gross revenue to date</div>
+        </div>
+    </div>
+    <div class="stat-card users">
+        <div class="stat-icon"><i class="fas fa-users"></i></div>
+        <div class="stat-content">
+            <div class="stat-label">Customers</div>
+            <div class="stat-value">{{ stats.active_customers }}</div>
+            <div class="stat-change positive"><i class="fas fa-user-check"></i>Active shopper accounts</div>
+        </div>
+    </div>
+    <div class="stat-card products">
+        <div class="stat-icon"><i class="fas fa-cubes"></i></div>
+        <div class="stat-content">
+            <div class="stat-label">Products In Stock</div>
+            <div class="stat-value">{{ stats.products_in_stock }}</div>
+            <div class="stat-change positive"><i class="fas fa-boxes-stacked"></i>Available items on hand</div>
+        </div>
+    </div>
+</div>
+
+
+<div class="charts-container">
+    <div class="chart-card">
+        <div class="table-header">
+            <h4 class="table-title"><i class="fas fa-chart-line"></i>Sales Overview</h4>
+        </div>
+        <canvas id="salesChart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="table-header">
+            <h4 class="table-title"><i class="fas fa-chart-pie"></i>Category Distribution</h4>
+        </div>
+        <canvas id="categoryChart"></canvas>
+    </div>
+    <div class="activity-section">
+        <div class="activity-title"><i class="fas fa-history"></i>Recent Activity</div>
+        <div class="activity-timeline">
+            {% for order in recent_orders[:4] %}
+            <div class="activity-item">
+                <div class="activity-dot"></div>
+                <div>
+                    <div class="activity-time">{{ order.date }}</div>
+                    <div class="activity-text"><span class="activity-user">{{ order.customer }}</span> placed order {{ order.id }} for {{ order.amount }}.</div>
+                </div>
+            </div>
+            {% else %}
+            <div class="empty-state">No recent activity yet.</div>
+            {% endfor %}
+        </div>
+    </div>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h4 class="table-title"><i class="fas fa-list"></i>Recent Orders</h4>
+        <a href="{{ url_for('order_module.orders_route') }}" class="view-all-btn">Open Orders</a>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-clean">
+            <thead>
+                <tr>
+                    <th>Order ID</th>
+                    <th>Customer</th>
+                    <th>Amount</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in recent_orders %}
+                <tr>
+                    <td><strong>{{ order.id }}</strong></td>
+                    <td>{{ order.customer }}</td>
+                    <td>{{ order.amount }}</td>
+                    <td><span class="status-badge status-{{ order.status|lower|replace(' ', '-') }}">{{ order.status|title }}</span></td>
+                    <td>{{ order.date }}</td>
+                </tr>
+                {% else %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted">No recent orders available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    initializeSalesChart();
+    initializeCategoryChart();
+</script>
+{% endblock %}

@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+
+{% block title %}Bakong Payment - Scan to Pay{% endblock %}
+
+{% block content %}
+<section class="checkout-section" style="margin-top: 2rem; margin-bottom: 4rem;">
+    <div class="container">
+        <div style="max-width: 450px; margin: 0 auto;">
+            
+            <!-- Payment Card -->
+            <div style="background: white; border-radius: 20px; overflow: hidden; box-shadow: 0 10px 40px rgba(0,0,0,0.1); padding: 2rem; text-align: center;">
+                
+                <!-- Title -->
+                <h4 style="font-size: 1.5rem; font-weight: 700; margin: 0 0 0.5rem 0;">Scan to Pay</h4>
+                <p style="color: #666; font-size: 0.95rem; margin: 0 0 1.5rem 0;">Use your Bakong mobile app to scan QR code</p>
+
+                <!-- QR Code Section -->
+                <div style="background: white; padding: 20px; border-radius: 15px; display: inline-block; margin-bottom: 1.5rem; border: 2px solid #e5e7eb;">
+                    <img src="/static/images/bakong_qr.jpg"
+                        style="width: 200px; height: 200px; object-fit: contain; display: block;"
+                        alt="QR Code"
+                        id="qrImage">
+                </div>
+
+                <!-- Amount -->
+                <div style="font-size: 2rem; font-weight: 700; color: #059669; margin-bottom: 0.5rem;">៛{{ "{:,.0f}".format(total) }}</div>
+                <p style="color: #666; font-size: 0.9rem; margin: 0 0 1.5rem 0;">Complete your transfer in Bakong app, then confirm below.</p>
+
+                <!-- Timer -->
+                <div style="color: #dc3545; font-size: 0.9rem; margin-bottom: 1.5rem;">
+                    ⏱️ Expires in: <span id="timer" style="font-weight: 700;">04:59</span>
+                </div>
+
+                <div style="font-size: 0.9rem; color: #555; margin-bottom: 1rem;">
+                    After you transfer payment in Bakong, click "I Have Paid" so our team can verify it.
+                </div>
+
+                <!-- Payment Status -->
+                <div id="paymentStatus" style="padding: 1rem; border-radius: 10px; margin-bottom: 1rem; display: none; font-weight: 600; text-align: center;">
+                </div>
+
+                <!-- Buttons -->
+                <div style="display: grid; gap: 0.75rem;">
+                    <button onclick="checkPaymentStatus()" style="padding: 0.75rem; background: #059669; color: white; border: none; border-radius: 8px; font-weight: 600; cursor: pointer; font-size: 0.95rem;">
+                        ✓ I Have Paid
+                    </button>
+                    <a href="{{ url_for('cart') }}" style="padding: 0.75rem; background: #f3f4f6; color: #111; text-decoration: none; border-radius: 8px; font-weight: 600; text-align: center; font-size: 0.95rem; border: 2px solid #e5e7eb;">
+                        Cancel
+                    </a>
+                </div>
+
+                <!-- Footer -->
+                <small style="color: #999; margin-top: 1.5rem; display: block;">
+                    Powered by KHQR / ABA / Wing
+                </small>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+
+<script>
+    // Timer
+    let timeLeft = 299; // 4:59
+    
+    function startTimer() {
+        const timerDisplay = document.getElementById('timer');
+        const timerInterval = setInterval(() => {
+            if (timeLeft <= 0) {
+                clearInterval(timerInterval);
+                timerDisplay.textContent = '00:00';
+                return;
+            }
+            
+            const minutes = Math.floor(timeLeft / 60);
+            const seconds = timeLeft % 60;
+            timerDisplay.textContent = `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+            timeLeft--;
+        }, 1000);
+    }
+
+    // Mark as paid and move order to verification queue
+    function checkPaymentStatus() {
+        const statusDiv = document.getElementById('paymentStatus');
+        
+        statusDiv.style.display = 'block';
+        statusDiv.innerHTML = '<span style="background: #fef3c7; color: #b45309; padding: 1rem; border-radius: 8px; display: block;">⏳ Submitting confirmation...</span>';
+
+        axios.post('{{ url_for("confirm_bakong_payment") }}')
+        .then(response => {
+            if (response.data && response.data.success) {
+                statusDiv.innerHTML = '<span style="background: #dcfce7; color: #166534; padding: 1rem; border-radius: 8px; display: block;">✅ Received. Your order is pending verification.</span>';
+                setTimeout(() => {
+                    window.location.href = '{{ url_for("order_success") }}';
+                }, 1600);
+                return;
+            }
+            statusDiv.innerHTML = '<span style="background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px; display: block;">❌ Could not submit confirmation</span>';
+        })
+        .catch(error => {
+            const message = error.response && error.response.data && error.response.data.message
+                ? error.response.data.message
+                : 'Error submitting confirmation';
+            statusDiv.innerHTML = `<span style="background: #fee2e2; color: #dc2626; padding: 1rem; border-radius: 8px; display: block;">❌ ${message}</span>`;
+            console.error('Error:', error);
+        });
+    }
+
+    // Start timer on page load
+    document.addEventListener('DOMContentLoaded', startTimer);
+</script>
+{% endblock %}

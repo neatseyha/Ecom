@@ -1,0 +1,496 @@
+{% extends "base.html" %}
+
+{% block title %}{{ product.name }} - Clothery{% endblock %}
+
+{% block content %}
+<section class="py-5 mt-5">
+    <div class="container">
+        <!-- Breadcrumb -->
+        <nav aria-label="breadcrumb" class="mb-4 pb-2 border-bottom">
+            <ol class="breadcrumb mb-0 text-uppercase letter-spacing-1 small fw-bold">
+                <li class="breadcrumb-item"><a href="{{ url_for('home') }}" class="text-muted text-decoration-none">Home</a></li>
+                <li class="breadcrumb-item"><a href="{{ url_for('shop') }}" class="text-muted text-decoration-none">Shop</a></li>
+                <li class="breadcrumb-item active text-dark" aria-current="page">{{ product.name }}</li>
+            </ol>
+        </nav>
+
+        <div class="row g-5 mb-5 pb-5 border-bottom">
+            <!-- Product Gallery (Left) -->
+            <div class="col-12 col-lg-6">
+                <div class="position-sticky" style="top: 100px;">
+                    <div class="rounded-4 overflow-hidden bg-surface position-relative shadow-sm">
+                        <span class="badge bg-danger position-absolute top-0 start-0 m-3 z-3 shadow-sm" style="font-size: 0.8rem;">NEW ARRIVAL</span>
+                        <img src="{{ product.image }}" alt="{{ product.name }}" id="mainImage" class="img-fluid w-100 object-fit-cover" style="height: 600px;">
+                    </div>
+                    <div class="d-flex gap-2 mt-3 overflow-auto pb-2">
+                        <!-- Thumbnail placeholders representing multiple angles -->
+                        <div class="border border-dark rounded-2 overflow-hidden cursor-pointer" style="width: 80px; height: 80px;">
+                            <img src="{{ product.image }}" alt="Thumb 1" class="w-100 h-100 object-fit-cover">
+                        </div>
+                        <div class="border border-transparent rounded-2 overflow-hidden cursor-pointer transition-hover opacity-50 hover-bg-light" style="width: 80px; height: 80px;">
+                            <img src="{{ product.image }}" alt="Thumb 2" class="w-100 h-100 object-fit-cover" style="filter: grayscale(100%);">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Product Info (Right) -->
+            <div class="col-12 col-lg-6 ps-lg-5">
+                <h1 class="display-5 fw-bold mb-2">{{ product.name }}</h1>
+                
+                <div class="d-flex align-items-center mb-4">
+                    <div class="text-warning me-2">
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star"></i>
+                        <i class="fa-solid fa-star-half-stroke"></i>
+                    </div>
+                    <span class="text-muted small text-decoration-underline cursor-pointer">(125 Reviews)</span>
+                </div>
+
+                <div class="mb-4">
+                    <span class="fs-2 fw-bold text-dark">${{ "%.2f"|format(product.price) }}</span>
+                    <span class="fs-5 text-muted text-decoration-line-through ms-2">${{ "%.2f"|format(product.price * 1.2) }}</span>
+                </div>
+
+                <p class="text-muted fs-6 mb-4" style="line-height: 1.8;">
+                    {{ product.description }}
+                </p>
+
+                <!-- Color Selection Flow -->
+                <div class="mb-4">
+                    <h6 class="text-uppercase letter-spacing-1 fw-bold mb-3 small">Color: <span id="selectedColorName" class="text-muted ms-1 fw-normal">Black</span></h6>
+                    <div class="d-flex gap-2 color-selector">
+                        <div class="color-option rounded-circle bg-dark border border-2 border-dark cursor-pointer shadow-sm active" data-color="Black" style="width: 32px; height: 32px; padding: 2px; background-clip: content-box;"></div>
+                        <div class="color-option rounded-circle bg-secondary border border-1 border-light cursor-pointer shadow-sm transition-hover" data-color="Grey" style="width: 32px; height: 32px; padding: 2px; background-clip: content-box;"></div>
+                        <div class="color-option rounded-circle border border-1 border-light cursor-pointer shadow-sm transition-hover" data-color="Light Grey" style="width: 32px; height: 32px; padding: 2px; background-clip: content-box; background-color: #d1d5db;"></div>
+                    </div>
+                </div>
+
+                <!-- Size Selection -->
+                <div class="mb-5">
+                    <div class="d-flex justify-content-between align-items-end mb-3">
+                        <h6 class="text-uppercase letter-spacing-1 fw-bold mb-0 small">Size</h6>
+                        <a href="#" class="small text-muted text-decoration-underline">Size Guide</a>
+                    </div>
+                    <div class="d-flex flex-wrap gap-2 size-selector">
+                        <span class="size-option border rounded px-4 py-2 text-muted fw-bold cursor-pointer hover-bg-light transition-hover disabled" data-size="XS" style="opacity: 0.5;">XS</span>
+                        <span class="size-option border rounded px-4 py-2 text-muted fw-bold cursor-pointer hover-bg-light transition-hover" data-size="S">S</span>
+                        <span class="size-option border border-dark bg-dark text-white rounded px-4 py-2 fw-bold shadow-sm active" data-size="M">M</span>
+                        <span class="size-option border rounded px-4 py-2 text-muted fw-bold cursor-pointer hover-bg-light transition-hover" data-size="L">L</span>
+                        <span class="size-option border rounded px-4 py-2 text-muted fw-bold cursor-pointer hover-bg-light transition-hover" data-size="XL">XL</span>
+                        <span class="size-option border rounded px-4 py-2 text-muted fw-bold cursor-pointer hover-bg-light transition-hover" data-size="XXL">XXL</span>
+                    </div>
+                </div>
+
+                <!-- Action Add to Cart -->
+                <div class="d-flex flex-column flex-sm-row gap-3 mb-5">
+                    <div class="border rounded d-flex align-items-center bg-white" style="height: 54px; width: 100%; width: clamp(140px, 20%, 160px);">
+                        <button class="btn border-0 shadow-none px-3" id="qtyDecrease"><i class="fa-solid fa-minus text-muted small"></i></button>
+                        <input type="number" id="productQuantity" class="form-control border-0 shadow-none text-center fw-bold p-0 bg-transparent" value="1" min="1" max="10">
+                        <button class="btn border-0 shadow-none px-3" id="qtyIncrease"><i class="fa-solid fa-plus text-muted small"></i></button>
+                    </div>
+                    
+                    <form method="POST" action="{{ url_for('add_to_cart') }}" style="flex-grow: 1; display: flex; gap: 12px;">
+                        <input type="hidden" name="product_id" value="{{ product.id }}">
+                        <input type="hidden" id="quantityInput" name="quantity" value="1">
+                        <input type="hidden" id="colorInput" name="color" value="Black">
+                        <input type="hidden" id="sizeInput" name="size" value="M">
+                        <button type="submit" class="btn btn-action flex-grow-1 fw-bold text-uppercase letter-spacing-1 shadow-sm rounded d-flex align-items-center justify-content-center gap-2" style="height: 54px; border-radius: 4px; min-width: 200px;">
+                            <i class="fa-solid fa-shopping-bag"></i>
+                            Add to Bag
+                        </button>
+                    </form>
+                    
+                    <button type="button" class="btn border hover-bg-light rounded d-flex align-items-center justify-content-center wishlist-btn {% if product.id in wishlist_product_ids %}in-wishlist{% endif %}" id="wishlist-detail-{{ product.id }}" onclick='addToWishlist({{ product.id }}, {{ product.name|tojson }})' style="height: 54px; width: 54px;" title="Add to Wishlist">
+                        <i class="{% if product.id in wishlist_product_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart fs-5 {% if product.id not in wishlist_product_ids %}text-muted{% endif %}"></i>
+                    </button>
+                </div>
+
+                <!-- Feature list -->
+                <div class="p-4 bg-surface rounded-3 border mb-4">
+                    <div class="d-flex align-items-center mb-3">
+                        <i class="fa-solid fa-truck-fast text-dark fs-5 me-3"></i>
+                        <div>
+                            <p class="mb-0 fw-bold small text-uppercase">Free Shipping</p>
+                            <p class="text-muted small mb-0">On orders over $100</p>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center">
+                        <i class="fa-solid fa-rotate-left text-dark fs-5 me-3"></i>
+                        <div>
+                            <p class="mb-0 fw-bold small text-uppercase">Free Returns</p>
+                            <p class="text-muted small mb-0">Within 30 days of purchase</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Product Meta -->
+                <ul class="list-unstyled text-muted small">
+                    <li class="mb-2"><strong class="text-dark me-2">SKU:</strong> CLOTH-{{ "%03d"|format(product.id) }}</li>
+                    <li class="mb-2"><strong class="text-dark me-2">Category:</strong> <a href="#" class="text-muted text-decoration-underline">Apparel</a></li>
+                    <li><strong class="text-dark me-2">Tags:</strong> Featured, New, Style</li>
+                </ul>
+
+            </div>
+        </div>
+
+        <!-- Customer Reviews Section -->
+        <div class="reviews-section py-5 border-top">
+            <div class="container">
+                <div class="row g-5">
+                    <!-- Reviews List -->
+                    <div class="col-lg-7">
+                        <h3 class="fw-bold mb-4">Customer Reviews</h3>
+                        <div id="reviewsList" class="reviews-list">
+                            <p class="text-muted">Loading reviews...</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Write Review Form -->
+                    <div class="col-lg-5">
+                        <h4 class="fw-bold mb-4">Write Your Review</h4>
+                        {% if session.get('user_id') %}
+                        <form id="reviewForm" class="review-form">
+                            <div class="mb-3">
+                                <label class="fw-bold mb-2 d-block">Rating</label>
+                                <div class="rating-input d-flex gap-2">
+                                    <i class="fa-regular fa-star fs-5" style="cursor: pointer; color: #fbbf24;" data-rating="1"></i>
+                                    <i class="fa-regular fa-star fs-5" style="cursor: pointer; color: #fbbf24;" data-rating="2"></i>
+                                    <i class="fa-regular fa-star fs-5" style="cursor: pointer; color: #fbbf24;" data-rating="3"></i>
+                                    <i class="fa-regular fa-star fs-5" style="cursor: pointer; color: #fbbf24;" data-rating="4"></i>
+                                    <i class="fa-regular fa-star fs-5" style="cursor: pointer; color: #fbbf24;" data-rating="5"></i>
+                                </div>
+                                <input type="hidden" id="ratingInput" name="rating" value="0">
+                                <span id="ratingText" class="small text-muted mt-2 d-block">Select a rating</span>
+                            </div>
+                            
+                            <div class="mb-3">
+                                <label for="review" class="fw-bold mb-2">Your Review</label>
+                                <textarea id="review" name="review" class="form-control" rows="4" placeholder="Share your experience with this product..."></textarea>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-primary w-100">Submit Review</button>
+                        </form>
+                        {% else %}
+                        <div class="alert alert-info">
+                            <p class="mb-0"><a href="{{ url_for('login') }}" class="alert-link">Login</a> to write a review.</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Related Products Section -->
+        <div class="related-products pt-4">
+            <div class="d-flex justify-content-between align-items-end mb-4">
+                <h2 class="mb-0 fw-bold fs-2">You May Also Like</h2>
+            </div>
+            <div class="row g-4">
+                {% for prod in related_products[:4] %}
+                <div class="col-12 col-md-4 col-lg-3">
+                    <div class="product-card border-0 bg-transparent">
+                        <div class="product-image rounded-3">
+                            <a href="{{ url_for('product_detail', product_id=prod.id) }}">
+                                <img src="{{ prod.image }}" class="card-img-top" alt="{{ prod.name }}">
+                            </a>
+                        </div>
+                        <div class="card-body px-1 pb-1 text-start">
+                            <h5 class="card-title text-truncate fs-6 fw-bold mb-1">
+                                <a href="{{ url_for('product_detail', product_id=prod.id) }}">{{ prod.name }}</a>
+                            </h5>
+                            <p class="text-muted small mb-2 text-truncate">{{ prod.description }}</p>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <div class="price fs-6 fw-bold">
+                                    ${{ "%.2f"|format(prod.price) }}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Load product ratings
+    function loadRatings() {
+        const productId = {{ product.id }};
+        fetch(`/get-ratings/${productId}`)
+            .then(response => response.json())
+            .then(data => {
+                const reviewsList = document.getElementById('reviewsList');
+                if (data.ratings && data.ratings.length > 0) {
+                    let html = `
+                        <div class="mb-4">
+                            <div class="d-flex align-items-center mb-3">
+                                <div class="me-3">
+                                    <span class="fs-2 fw-bold">${data.average_rating}</span>
+                                    <div class="text-warning">
+                                        ${'<i class="fa-solid fa-star"></i>'.repeat(Math.floor(data.average_rating))}
+                                        ${data.average_rating % 1 >= 0.5 ? '<i class="fa-solid fa-star-half-stroke"></i>' : ''}
+                                    </div>
+                                </div>
+                                <div>
+                                    <p class="mb-0 fw-bold">${data.total_reviews} reviews</p>
+                                    <small class="text-muted">Based on customer feedback</small>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                    
+                    data.ratings.forEach(rating => {
+                        html += `
+                            <div class="review-item border-bottom pb-3 mb-3">
+                                <div class="d-flex justify-content-between align-items-start mb-2">
+                                    <div>
+                                        <div class="text-warning small mb-1">
+                                            ${'<i class="fa-solid fa-star"></i>'.repeat(Math.floor(rating.rating))}
+                                            ${rating.rating % 1 >= 0.5 ? '<i class="fa-solid fa-star-half-stroke"></i>' : ''}
+                                        </div>
+                                        <strong>Customer Review</strong>
+                                        ${rating.verified_purchase ? '<span class="badge bg-success ms-2">Verified Purchase</span>' : ''}
+                                    </div>
+                                    <small class="text-muted">${new Date(rating.created_at).toLocaleDateString()}</small>
+                                </div>
+                                <p class="text-muted mb-0">${rating.review || 'No detailed review provided'}</p>
+                            </div>
+                        `;
+                    });
+                    reviewsList.innerHTML = html;
+                } else {
+                    reviewsList.innerHTML = '<p class="text-muted">No reviews yet. Be the first to review this product!</p>';
+                }
+            })
+            .catch(err => console.error('Error loading ratings:', err));
+    }
+
+    // Rating input handler
+    document.addEventListener('DOMContentLoaded', function() {
+        loadRatings();
+        
+        // Handle star rating clicks
+        const ratingStars = document.querySelectorAll('.rating-input i');
+        const ratingInput = document.getElementById('ratingInput');
+        const ratingText = document.getElementById('ratingText');
+        
+        ratingStars.forEach(star => {
+            star.addEventListener('click', function() {
+                const rating = this.dataset.rating;
+                ratingInput.value = rating;
+                ratingText.textContent = `${rating} star${rating > 1 ? 's' : ''} - Great! ${rating === '5' ? '❤️' : '👍'}`;
+                
+                // Update star display
+                ratingStars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.remove('fa-regular');
+                        s.classList.add('fa-solid');
+                    } else {
+                        s.classList.add('fa-regular');
+                        s.classList.remove('fa-solid');
+                    }
+                });
+            });
+            
+            star.addEventListener('mouseover', function() {
+                const rating = this.dataset.rating;
+                ratingStars.forEach((s, index) => {
+                    if (index < rating) {
+                        s.classList.add('fa-solid');
+                        s.classList.remove('fa-regular');
+                    } else {
+                        s.classList.remove('fa-solid');
+                        s.classList.add('fa-regular');
+                    }
+                });
+            });
+        });
+        
+        document.querySelector('.rating-input').addEventListener('mouseleave', function() {
+            const currentRating = ratingInput.value;
+            ratingStars.forEach((s, index) => {
+                if (currentRating > 0 && index < currentRating) {
+                    s.classList.add('fa-solid');
+                    s.classList.remove('fa-regular');
+                } else {
+                    s.classList.remove('fa-solid');
+                    s.classList.add('fa-regular');
+                }
+            });
+        });
+        
+        // Handle review form submission
+        const reviewForm = document.getElementById('reviewForm');
+        if (reviewForm) {
+            reviewForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const rating = parseInt(document.getElementById('ratingInput').value);
+                const review = document.getElementById('review').value;
+                
+                if (!rating) {
+                    showToast('Please select a rating', 'error');
+                    return;
+                }
+                
+                fetch('/add-rating', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        product_id: {{ product.id }},
+                        rating: rating,
+                        review: review
+                    })
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        showToast('Thank you for your review!', 'success');
+                        reviewForm.reset();
+                        document.getElementById('ratingInput').value = 0;
+                        document.getElementById('ratingText').textContent = 'Select a rating';
+                        ratingStars.forEach(s => {
+                            s.classList.remove('fa-solid');
+                            s.classList.add('fa-regular');
+                        });
+                        loadRatings(); // Reload ratings
+                    } else {
+                        showToast(data.message || 'Error submitting review', 'error');
+                    }
+                })
+                .catch(err => {
+                    showToast('Error submitting review', 'error');
+                    console.error('Error:', err);
+                });
+            });
+        }
+        
+        // Quantity controls for add to cart
+        const qtyDecrease = document.getElementById('qtyDecrease');
+        const qtyIncrease = document.getElementById('qtyIncrease');
+        const productQuantity = document.getElementById('productQuantity');
+        const quantityInput = document.getElementById('quantityInput');
+        
+        if (qtyDecrease && qtyIncrease && productQuantity) {
+            qtyDecrease.addEventListener('click', function() {
+                const currentVal = parseInt(productQuantity.value);
+                if (currentVal > 1) {
+                    productQuantity.value = currentVal - 1;
+                    quantityInput.value = productQuantity.value;
+                }
+            });
+            
+            qtyIncrease.addEventListener('click', function() {
+                const currentVal = parseInt(productQuantity.value);
+                if (currentVal < 10) {
+                    productQuantity.value = currentVal + 1;
+                    quantityInput.value = productQuantity.value;
+                }
+            });
+            
+            productQuantity.addEventListener('change', function() {
+                let val = parseInt(this.value);
+                if (isNaN(val) || val < 1) val = 1;
+                if (val > 10) val = 10;
+                this.value = val;
+                quantityInput.value = val;
+            });
+            
+            // Update quantity input before form submission
+            const form = document.querySelector('form[method="POST"]');
+            if (form) {
+                form.addEventListener('submit', function() {
+                    quantityInput.value = productQuantity.value;
+                });
+            }
+        }
+        
+        // Color selection logic
+        const colorOptions = document.querySelectorAll('.color-option');
+        const colorInput = document.getElementById('colorInput');
+        const selectedColorName = document.getElementById('selectedColorName');
+        
+        colorOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Remove active classes
+                colorOptions.forEach(opt => {
+                    opt.classList.remove('border-2');
+                    opt.classList.remove('border-dark');
+                    opt.classList.add('border-1');
+                    opt.classList.add('border-light');
+                    opt.classList.remove('active');
+                });
+                // Add active to clicked
+                this.classList.remove('border-1');
+                this.classList.remove('border-light');
+                this.classList.add('border-2');
+                this.classList.add('border-dark');
+                this.classList.add('active');
+                
+                // Update invisible inputs and text
+                const colorVal = this.dataset.color;
+                colorInput.value = colorVal;
+                selectedColorName.textContent = colorVal;
+            });
+        });
+        
+        // Size selection logic
+        const sizeOptions = document.querySelectorAll('.size-option:not(.disabled)');
+        const sizeInput = document.getElementById('sizeInput');
+        
+        sizeOptions.forEach(option => {
+            option.addEventListener('click', function() {
+                // Reset all
+                sizeOptions.forEach(opt => {
+                    opt.classList.remove('border-dark');
+                    opt.classList.remove('bg-dark');
+                    opt.classList.remove('text-white');
+                    opt.classList.add('text-muted');
+                    opt.classList.remove('active');
+                });
+                // Set active to clicked
+                this.classList.add('border-dark');
+                this.classList.add('bg-dark');
+                this.classList.add('text-white');
+                this.classList.remove('text-muted');
+                this.classList.add('active');
+                
+                // Update invisible input
+                sizeInput.value = this.dataset.size;
+            });
+        });
+        
+        // Handle add to cart form with SweetAlert
+        const addToCartForm = document.querySelector('form[method="POST"][action="{{ url_for("add_to_cart") }}"]');
+        if (addToCartForm) {
+            addToCartForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                
+                const productName = document.querySelector('h1.display-5')?.textContent || 'Product';
+                const quantity = productQuantity?.value || '1';
+                
+                // Show loading alert
+                Swal.fire({
+                    title: 'Adding to Cart...',
+                    html: `<p>Adding <strong>${quantity}x ${productName}</strong> to your cart</p>`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+                
+                // Submit the form
+                setTimeout(() => {
+                    this.submit();
+                }, 500);
+            });
+        }
+    });
+</script>
+{% endblock %}

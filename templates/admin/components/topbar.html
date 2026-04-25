@@ -1,0 +1,48 @@
+<div class="top-bar">
+    <div class="d-flex align-items-center gap-3">
+        <button class="btn btn-outline-dark" id="sidebarToggle" style="background: transparent; border-color: var(--admin-text-secondary); color: var(--admin-text);">
+            <i class="fa-solid fa-bars"></i>
+        </button>
+        <h2 class="page-title">
+            {% if module_icon %}
+                <i class="fas {{ module_icon }}"></i>
+            {% endif %}
+            {{ module_name or 'Dashboard' }}
+        </h2>
+    </div>
+    <div class="top-actions">
+        <div class="admin-profile">
+            {% if session.get('user_name') %}
+                <div class="admin-avatar">{{ session.get('user_name')[0:2]|upper }}</div>
+                <span class="admin-name">{{ session.get('user_name') }}</span>
+                <a href="{{ url_for('auth.logout') }}" class="btn btn-sm" style="background: var(--admin-accent); color: #fff;">
+                    <i class="fa-solid fa-right-from-bracket"></i> Logout
+                </a>
+            {% else %}
+                <a href="{{ url_for('auth.login') }}" class="btn btn-sm" style="background: var(--admin-accent); color: #fff;">
+                    <i class="fa-solid fa-sign-in-alt"></i> Login
+                </a>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<style>
+.btn-outline-dark {
+    background: transparent !important;
+    border-color: var(--admin-border) !important;
+    color: var(--admin-text-secondary) !important;
+}
+
+.btn-outline-dark:hover {
+    background: var(--admin-bg-hover) !important;
+    border-color: var(--admin-accent) !important;
+    color: var(--admin-accent) !important;
+}
+
+[data-theme="dark"] .btn-outline-dark {
+    background: transparent !important;
+    border-color: var(--admin-border) !important;
+    color: var(--admin-text-secondary) !important;
+}
+</style>

@@ -1,0 +1,105 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Analytics - FashionHub Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Performance</div>
+        <h1 class="page-title"><i class="fas fa-chart-line"></i>Analytics & reports</h1>
+        <p class="page-subtitle">A more polished reporting view for the same charts and period controls.</p>
+    </div>
+    <div class="filter-buttons d-flex gap-2">
+        <a href="?period=week" class="btn-filter text-decoration-none {% if period == 'week' or not period %}active{% endif %}">This Week</a>
+        <a href="?period=month" class="btn-filter text-decoration-none {% if period == 'month' %}active{% endif %}">This Month</a>
+        <a href="?period=quarter" class="btn-filter text-decoration-none {% if period == 'quarter' %}active{% endif %}">This Quarter</a>
+        <a href="?period=year" class="btn-filter text-decoration-none {% if period == 'year' %}active{% endif %}">This Year</a>
+        <a href="?period=all" class="btn-filter text-decoration-none {% if period == 'all' %}active{% endif %}">All Time</a>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-label">Total Revenue</div>
+        <div class="stat-number">{{ analytics.stats.revenue if analytics and analytics.stats else '$12,450' }}</div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i>{{ analytics.stats.revenue_change if analytics and analytics.stats else '15' }}% increase from last week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Total Orders</div>
+        <div class="stat-number">{{ analytics.stats.orders if analytics and analytics.stats else '432' }}</div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i>{{ analytics.stats.orders_change if analytics and analytics.stats else '8' }}% increase from last week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Avg Order Value</div>
+        <div class="stat-number">{{ analytics.stats.avg_order if analytics and analytics.stats else '$28.81' }}</div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i>{{ analytics.stats.avg_order_change if analytics and analytics.stats else '5' }}% increase from last week</div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-label">Conversion Rate</div>
+        <div class="stat-number">{{ analytics.stats.conversion if analytics and analytics.stats else '3.2%' }}</div>
+        <div class="stat-change positive"><i class="fas fa-arrow-up"></i>{{ analytics.stats.conversion_change if analytics and analytics.stats else '0.5' }}% increase from last week</div>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-wave-square"></i> Revenue Trend (30 Days)</div>
+        <canvas id="revenue-trend-chart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-pie"></i> Sales by Category</div>
+        <canvas id="sales-category-chart"></canvas>
+    </div>
+    <div class="chart-card">
+        <div class="chart-title"><i class="fas fa-chart-column"></i> Top Products</div>
+        <canvas id="top-products-chart"></canvas>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const defaultLabels = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+    const defaultRevenue = [1200, 1900, 1500, 2200, 1800, 2500, 2800];
+    const categoryLabels = {% if analytics and analytics.categories %}{{ analytics.categories.labels | tojson }}{% else %}["Indoor Plants", "Outdoor Plants", "Accessories", "Pots"]{% endif %};
+    const categoryData = {% if analytics and analytics.categories %}{{ analytics.categories.data | tojson }}{% else %}[35, 25, 20, 20]{% endif %};
+    const categoryColors = {% if analytics and analytics.categories %}{{ analytics.categories.colors | tojson }}{% else %}["#0f766e", "#1d4ed8", "#fb923c", "#14b8a6"]{% endif %};
+
+    new Chart(document.getElementById('revenue-trend-chart').getContext('2d'), {
+        type: 'line',
+        data: {
+            labels: {% if analytics and analytics.chart_data %}{{ analytics.chart_data.labels | tojson }}{% else %}defaultLabels{% endif %},
+            datasets: [{
+                label: 'Revenue',
+                data: {% if analytics and analytics.chart_data %}{{ analytics.chart_data.revenue | tojson }}{% else %}defaultRevenue{% endif %},
+                borderColor: '#1d4ed8',
+                backgroundColor: 'rgba(29, 78, 216, 0.12)',
+                tension: 0.25,
+                fill: true
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+    new Chart(document.getElementById('sales-category-chart').getContext('2d'), {
+        type: 'doughnut',
+        data: { labels: categoryLabels, datasets: [{ data: categoryData, backgroundColor: categoryColors }] },
+        options: { responsive: true, maintainAspectRatio: false }
+    });
+
+    new Chart(document.getElementById('top-products-chart').getContext('2d'), {
+        type: 'bar',
+        data: {
+            labels: {% if analytics and analytics.top_products %}{{ analytics.top_products.labels | tojson }}{% else %}["Snake Plant", "Monstera", "Golden Pothos", "ZZ Plant", "Lucky Bamboo"]{% endif %},
+            datasets: [{
+                label: 'Sales',
+                data: {% if analytics and analytics.top_products %}{{ analytics.top_products.data | tojson }}{% else %}[125, 98, 87, 76, 65]{% endif %},
+                backgroundColor: '#fb923c'
+            }]
+        },
+        options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } }
+    });
+
+
+</script>
+{% endblock %}

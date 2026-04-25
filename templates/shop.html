@@ -1,0 +1,367 @@
+{% extends "base.html" %}
+
+{% block title %}Shop - Clothery{% endblock %}
+
+{% block content %}
+<section class="pt-5 pb-4 mt-5">
+    <div class="container">
+        <div class="hero-banner position-relative rounded-4 overflow-hidden mb-5" style="height: 300px; background-image: url('https://images.unsplash.com/photo-1445205170230-053b83016050?q=80&w=1600&auto=format&fit=crop'); background-position: center 30%;">
+            <div class="position-absolute top-0 start-0 w-100 h-100" style="background: rgba(0,0,0,0.4);"></div>
+            <div class="position-absolute top-50 start-50 translate-middle text-center w-100 z-2">
+                <h1 class="text-white fw-bold display-4 mb-2">The Collection</h1>
+                <p class="text-white-50 fs-5">Elevate your everyday wardrobe</p>
+            </div>
+        </div>
+        
+        <div class="shop-layout">
+            <aside class="shop-sidebar pe-lg-4">
+                <form method="GET" action="{{ url_for('shop') }}" id="filterForm">
+                    <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                        <h3 class="mb-0 fs-5 fw-bold text-uppercase letter-spacing-1">Filters</h3>
+                        <a href="{{ url_for('shop') }}" id="clearFiltersLink" class="btn btn-sm btn-outline-secondary rounded-0" style="padding: 0.35rem 0.75rem; font-size: 0.75rem; text-transform: uppercase; font-weight: 600;">
+                            <i class="fa-solid fa-times me-1"></i>Clear All
+                        </a>
+                    </div>
+                    
+                    <div class="filter-group mb-4">
+                        <h4 class="fs-6 fw-bold mb-3 text-uppercase letter-spacing-1">Search</h4>
+                        <div class="input-group">
+                            <input type="text" name="search" value="{{ search }}" class="form-control rounded-0" placeholder="Search products...">
+                            <button class="btn btn-dark rounded-0" type="submit"><i class="fa-solid fa-search"></i></button>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group mb-4">
+                        <h4 class="fs-6 fw-bold mb-3 text-uppercase letter-spacing-1">Categories</h4>
+                        <ul class="filter-list m-0 p-0 list-unstyled">
+                            <li class="mb-2">
+                                <label class="filter-label">
+                                    <input type="radio" name="category_id" value="" {% if not current_category %}checked{% endif %} onchange="submitFilterForm()"> 
+                                    <span>All Products</span>
+                                </label>
+                            </li>
+                            {% for cat in categories %}
+                            <li class="mb-2">
+                                <label class="filter-label">
+                                    <input type="radio" name="category_id" value="{{ cat.id }}" {% if current_category == cat.id %}checked{% endif %} onchange="submitFilterForm()"> 
+                                    <span>{{ cat.category_name }}</span>
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <div class="filter-group mb-4">
+                        <h4 class="fs-6 fw-bold mb-3 text-uppercase letter-spacing-1">Price Range</h4>
+                        <ul class="filter-list m-0 p-0">
+                            <li class="mb-2"><label class="filter-label"><input type="radio" name="price_range" value="" {% if not min_price and not max_price %}checked{% endif %} onchange="updatePriceFilter(this)"> <span>Any Price</span></label></li>
+                            <li class="mb-2"><label class="filter-label"><input type="radio" name="price_range" value="0-50" {% if min_price == 0.0 and max_price == 50.0 %}checked{% endif %} onchange="updatePriceFilter(this)"> <span>Under $50</span></label></li>
+                            <li class="mb-2"><label class="filter-label"><input type="radio" name="price_range" value="50-100" {% if min_price == 50.0 and max_price == 100.0 %}checked{% endif %} onchange="updatePriceFilter(this)"> <span>$50 - $100</span></label></li>
+                            <li class="mb-2"><label class="filter-label"><input type="radio" name="price_range" value="100+" {% if min_price == 100.0 and not max_price %}checked{% endif %} onchange="updatePriceFilter(this)"> <span>Over $100</span></label></li>
+                        </ul>
+                        <div class="mt-3">
+                            <label class="small fw-bold mb-2 d-block">Custom Range</label>
+                            <div class="d-flex gap-2">
+                                <input type="number" name="min_price" id="min_price" class="form-control form-control-sm" placeholder="Min" value="{{ min_price or '' }}" onchange="submitFilterForm()">
+                                <input type="number" name="max_price" id="max_price" class="form-control form-control-sm" placeholder="Max" value="{{ max_price or '' }}" onchange="submitFilterForm()">
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="filter-group mb-4">
+                        <h4 class="fs-6 fw-bold mb-3 text-uppercase letter-spacing-1">Brands</h4>
+                        <ul class="filter-list m-0 p-0 list-unstyled">
+                            <li class="mb-2">
+                                <label class="filter-label">
+                                    <input type="radio" name="brand" value="" {% if not brand %}checked{% endif %} onchange="submitFilterForm()">
+                                    <span>All Brands</span>
+                                </label>
+                            </li>
+                            {% for brand_name in available_brands %}
+                            <li class="mb-2">
+                                <label class="filter-label">
+                                    <input type="radio" name="brand" value="{{ brand_name }}" {% if brand == brand_name %}checked{% endif %} onchange="submitFilterForm()">
+                                    <span>{{ brand_name }}</span>
+                                </label>
+                            </li>
+                            {% endfor %}
+                        </ul>
+                    </div>
+                    
+                    <button type="submit" class="btn btn-primary w-100 rounded-0 mt-2">Apply Filters</button>
+                </form>
+
+                <script>
+                    function submitFilterForm() {
+                        const form = document.getElementById('filterForm');
+                        if (form) {
+                            applyShopFiltersFromForm(form);
+                        }
+                    }
+
+                    function updatePriceFilter(radio) {
+                        const value = radio.value;
+                        const form = document.getElementById('filterForm');
+                        const minInput = form.querySelector('input[name="min_price"]');
+                        const maxInput = form.querySelector('input[name="max_price"]');
+                        
+                        if (value === '') {
+                            minInput.value = '';
+                            maxInput.value = '';
+                        } else if (value === '0-50') {
+                            minInput.value = '0';
+                            maxInput.value = '50';
+                        } else if (value === '50-100') {
+                            minInput.value = '50';
+                            maxInput.value = '100';
+                        } else if (value === '100+') {
+                            minInput.value = '100';
+                            maxInput.value = '';
+                        }
+                        applyShopFiltersFromForm(form);
+                    }
+                </script>
+            </aside>
+            
+            <div class="shop-main">
+                <!-- Toolbar for sorting -->
+                <div class="d-flex justify-content-between align-items-center mb-4 pb-2 border-bottom">
+                    <p class="text-muted mb-0 small">
+                        Showing {{ (pagination.page - 1) * 12 + 1 }}-{{ [pagination.page * 12, pagination.total] | min }} of {{ pagination.total }} results
+                    </p>
+                    <div class="d-flex align-items-center gap-2">
+                        <span class="text-muted small text-uppercase letter-spacing-1">Sort by:</span>
+                        <form method="GET" action="{{ url_for('shop') }}" id="sortForm" style="display: inline;">
+                            <!-- Preserve existing filter parameters -->
+                            {% if search %}<input type="hidden" name="search" value="{{ search }}">{% endif %}
+                            {% if current_category %}<input type="hidden" name="category_id" value="{{ current_category }}">{% endif %}
+                            {% if min_price is not none %}<input type="hidden" name="min_price" value="{{ min_price }}">{% endif %}
+                            {% if max_price is not none %}<input type="hidden" name="max_price" value="{{ max_price }}">{% endif %}
+                            {% if brand %}<input type="hidden" name="brand" value="{{ brand }}">{% endif %}
+                            
+                            <select name="sort_by" class="form-select border-0 shadow-none bg-transparent fw-bold" style="width: auto;">
+                                <option value="featured" {% if sort_by == 'featured' %}selected{% endif %}>Featured</option>
+                                <option value="newest" {% if sort_by == 'newest' %}selected{% endif %}>Newest Arrivals</option>
+                                <option value="price_low" {% if sort_by == 'price_low' %}selected{% endif %}>Price: Low to High</option>
+                                <option value="price_high" {% if sort_by == 'price_high' %}selected{% endif %}>Price: High to Low</option>
+                            </select>
+                        </form>
+                    </div>
+                </div>
+                
+                <div class="row g-4">
+                    {% for product in products %}
+                    <div class="col-12 col-sm-6 col-lg-4">
+                        <div class="product-card border-0 bg-transparent">
+                            <div class="product-image rounded-3 position-relative">
+                                <span class="product-badge bg-primary">NEW</span>
+                                <div class="product-card-actions">
+                                    <button type="button" class="wishlist-btn {% if product.id in wishlist_product_ids %}in-wishlist{% endif %}" id="wishlist-{{ product.id }}" onclick='addToWishlist({{ product.id }}, {{ product.name|tojson }})'>
+                                        <i class="{% if product.id in wishlist_product_ids %}fa-solid{% else %}fa-regular{% endif %} fa-heart"></i>
+                                    </button>
+                                    <button type="button" class="wishlist-btn" onclick="showQuickView({{ product.id }})" style="border-color: var(--border-color); color: var(--text-muted);">
+                                        <i class="fa-regular fa-eye"></i>
+                                    </button>
+                                </div>
+                                <a href="{{ url_for('product_detail', product_id=product.id) }}">
+                                    <img src="{{ product.image }}" class="card-img-top" alt="{{ product.name }}">
+                                </a>
+                            </div>
+                            <div class="card-body px-1 pb-1 text-start">
+                                <div class="stock-status stock-in mb-2">In Stock</div>
+                                <h5 class="card-title text-truncate fs-6 fw-bold mb-1">
+                                    <a href="{{ url_for('product_detail', product_id=product.id) }}">{{ product.name }}</a>
+                                </h5>
+                                <p class="text-muted small mb-2 text-truncate">{{ product.description }}</p>
+                                <div class="d-flex justify-content-between align-items-center mb-2">
+                                    <div class="price fs-6 fw-bold">
+                                        ${{ "%.2f"|format(product.price) }}
+                                    </div>
+                                    <div class="rating-stars">
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <i class="fa-solid fa-star"></i>
+                                        <span class="rating-count ms-1">(5.0)</span>
+                                    </div>
+                                </div>
+                                <form method="POST" action="{{ url_for('add_to_cart') }}" style="width: 100%;">
+                                    <input type="hidden" name="product_id" value="{{ product.id }}">
+                                    <input type="hidden" name="quantity" value="1">
+                                    <button type="submit" class="btn btn-action w-100" style="height: 40px; font-size: 14px;">
+                                        <i class="fa-solid fa-shopping-bag me-2"></i>Add to Cart
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+                    </div>
+                    {% else %}
+                    <!-- Fallback if products list is empty/mocking -->
+                    <div class="col-12 py-5 text-center">
+                        <i class="fa-solid fa-box-open fs-1 text-muted mb-3"></i>
+                        <h5>No products found</h5>
+                        <p class="text-muted">Try adjusting your filters.</p>
+                    </div>
+                    {% endfor %}
+                </div>
+                
+                <!-- Pagination -->
+                <nav class="mt-5 pt-4 border-top d-flex justify-content-center">
+                    <ul class="pagination">
+                        <!-- Previous button -->
+                        <li class="page-item {% if not pagination.has_prev %}disabled{% endif %}">
+                            <a class="page-link border-0 text-muted" href="{% if pagination.has_prev %}{{ url_for('shop', page=pagination.prev_num, search=search, category_id=current_category, min_price=min_price, max_price=max_price, brand=brand, sort_by=sort_by) }}{% else %}#{% endif %}" {% if not pagination.has_prev %}tabindex="-1"{% endif %}><i class="fa-solid fa-chevron-left"></i></a>
+                        </li>
+                        
+                        <!-- Page numbers -->
+                        {% for page_num in pagination.iter_pages() %}
+                            {% if page_num %}
+                                {% if page_num == pagination.page %}
+                                <li class="page-item active">
+                                    <a class="page-link bg-dark border-dark text-white rounded-circle ms-1 me-1" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;" href="#">{{ page_num }}</a>
+                                </li>
+                                {% else %}
+                                <li class="page-item">
+                                    <a class="page-link border-0 text-dark rounded-circle ms-1 me-1 hover-bg-light" style="width:36px; height:36px; display:flex; align-items:center; justify-content:center;" href="{{ url_for('shop', page=page_num, search=search, category_id=current_category, min_price=min_price, max_price=max_price, brand=brand, sort_by=sort_by) }}">{{ page_num }}</a>
+                                </li>
+                                {% endif %}
+                            {% else %}
+                            <li class="page-item disabled">
+                                <span class="page-link border-0 text-muted">...</span>
+                            </li>
+                            {% endif %}
+                        {% endfor %}
+                        
+                        <!-- Next button -->
+                        <li class="page-item {% if not pagination.has_next %}disabled{% endif %}">
+                            <a class="page-link border-0 text-dark" href="{% if pagination.has_next %}{{ url_for('shop', page=pagination.next_num, search=search, category_id=current_category, min_price=min_price, max_price=max_price, brand=brand, sort_by=sort_by) }}{% else %}#{% endif %}" {% if not pagination.has_next %}tabindex="-1"{% endif %}><i class="fa-solid fa-chevron-right"></i></a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function bindAddToCartForms() {
+        const cartForms = document.querySelectorAll('form[action="{{ url_for("add_to_cart") }}"]');
+
+        cartForms.forEach(form => {
+            if (form.dataset.bound === '1') {
+                return;
+            }
+            form.dataset.bound = '1';
+
+            form.addEventListener('submit', function(e) {
+                e.preventDefault();
+
+                const productCard = form.closest('.product-card');
+                const productName = productCard ? productCard.querySelector('.card-title a')?.textContent || 'Product' : 'Product';
+
+                Swal.fire({
+                    title: 'Adding to Cart...',
+                    html: `<p>Adding <strong>${productName}</strong> to your cart</p>`,
+                    allowOutsideClick: false,
+                    didOpen: () => {
+                        Swal.showLoading();
+                    }
+                });
+
+                setTimeout(() => {
+                    form.submit();
+                }, 500);
+            });
+        });
+    }
+
+    async function applyShopFiltersUrl(url, pushState = true) {
+        try {
+            const response = await fetch(url, {
+                headers: {
+                    'X-Requested-With': 'XMLHttpRequest'
+                }
+            });
+            const html = await response.text();
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            const newShopMain = doc.querySelector('.shop-main');
+            const shopMain = document.querySelector('.shop-main');
+
+            if (!newShopMain || !shopMain) {
+                window.location.href = url;
+                return;
+            }
+
+            shopMain.innerHTML = newShopMain.innerHTML;
+            if (pushState) {
+                history.pushState({}, '', url);
+            }
+            bindShopMainInteractions();
+            bindAddToCartForms();
+        } catch (error) {
+            console.error('Filter update failed:', error);
+            window.location.href = url;
+        }
+    }
+
+    function applyShopFiltersFromForm(form) {
+        const params = new URLSearchParams(new FormData(form));
+        const url = `${form.action}?${params.toString()}`;
+        applyShopFiltersUrl(url, true);
+    }
+
+    function bindShopMainInteractions() {
+        const sortForm = document.getElementById('sortForm');
+        if (sortForm) {
+            const sortSelect = sortForm.querySelector('select[name="sort_by"]');
+
+            sortForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                applyShopFiltersFromForm(sortForm);
+            });
+
+            if (sortSelect) {
+                sortSelect.addEventListener('change', function() {
+                    applyShopFiltersFromForm(sortForm);
+                });
+            }
+        }
+
+        document.querySelectorAll('.pagination a[href]:not([href="#"])').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                applyShopFiltersUrl(link.href, true);
+            });
+        });
+    }
+
+    document.addEventListener('DOMContentLoaded', function() {
+        const filterForm = document.getElementById('filterForm');
+        if (filterForm) {
+            filterForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                applyShopFiltersFromForm(filterForm);
+            });
+        }
+
+        const clearFiltersLink = document.getElementById('clearFiltersLink');
+        if (clearFiltersLink) {
+            clearFiltersLink.addEventListener('click', function(e) {
+                e.preventDefault();
+                applyShopFiltersUrl(clearFiltersLink.href, true);
+            });
+        }
+
+        window.addEventListener('popstate', function() {
+            applyShopFiltersUrl(window.location.href, false);
+        });
+
+        bindShopMainInteractions();
+        bindAddToCartForms();
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+
+{% block title %}Order Successful - TechShop{% endblock %}
+
+{% block content %}
+<section class="success-section" style="min-height: 80vh; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, #f8f9fa 0%, #ffffff 100%);">
+    <div class="container">
+        <div style="max-width: 600px; margin: 0 auto; text-align: center; background: white; padding: 3rem 1.5rem; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+            <div style="font-size: 4rem; color: #059669; margin-bottom: 1.5rem; animation: bounce 1s;">✓</div>
+            <h1 style="font-size: 2rem; color: #111; margin-bottom: 0.5rem;">Order Placed Successfully!</h1>
+            {% if payment_pending %}
+            <p style="color: #666; font-size: 1.05rem; margin-bottom: 1.5rem;">Thank you. We received your payment confirmation and will verify it shortly.</p>
+            {% else %}
+            <p style="color: #666; font-size: 1.05rem; margin-bottom: 1.5rem;">Thank you for your purchase. Your order has been confirmed.</p>
+            {% endif %}
+            
+            <!-- Order Number -->
+            <div style="background: #f0f9ff; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; border-left: 5px solid #059669;">
+                <p style="color: #666; margin: 0 0 0.5rem 0; font-size: 0.9rem; text-transform: uppercase; letter-spacing: 0.5px;">Order Number</p>
+                <p style="font-size: 1.8rem; font-weight: 700; color: #059669; margin: 0; font-family: monospace;">{{ order_number }}</p>
+                <p style="color: #666; margin: 0.5rem 0 0 0; font-size: 0.9rem;">Save this number for your records</p>
+            </div>
+
+            {% if customer_name or customer_phone or customer_address %}
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 1.25rem; text-align: left;">
+                <h3 style="margin: 0 0 0.75rem 0; color: #111; font-size: 1.05rem;">Customer Details</h3>
+                {% if customer_name %}<div style="color: #555; margin-bottom: 0.35rem;"><strong>Name:</strong> {{ customer_name }}</div>{% endif %}
+                {% if customer_phone %}<div style="color: #555; margin-bottom: 0.35rem;"><strong>Phone:</strong> {{ customer_phone }}</div>{% endif %}
+                {% if customer_address %}<div style="color: #555;"><strong>Address:</strong> {{ customer_address }}</div>{% endif %}
+            </div>
+            {% endif %}
+
+            {% if order_items %}
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="margin: 0 0 0.75rem 0; color: #111; font-size: 1.05rem;">Ordered Items</h3>
+                {% for item in order_items %}
+                <div style="display: flex; justify-content: space-between; gap: 0.5rem; padding: 0.45rem 0; border-bottom: 1px solid #e5e7eb; color: #555;">
+                    <span>{{ item.name }} x {{ item.quantity }}</span>
+                    <span>${{ "%.2f"|format(item.price * item.quantity) }}</span>
+                </div>
+                {% endfor %}
+                <div style="display: flex; justify-content: space-between; padding-top: 0.8rem; font-weight: 700; color: #111;">
+                    <span>Total</span>
+                    <span>${{ "%.2f"|format(order_total) }}</span>
+                </div>
+            </div>
+            {% endif %}
+
+            <div style="background: #f8f9fa; padding: 1.5rem; border-radius: 8px; margin-bottom: 2rem; text-align: left;">
+                <h3 style="margin-top: 0; margin-bottom: 1rem; color: #111;">What's Next?</h3>
+                <ul style="list-style: none; padding: 0; margin: 0;">
+                    {% if payment_pending %}
+                    <li style="padding: 0.5rem 0; color: #666;"><i class="fas fa-clock" style="color: #059669; margin-right: 0.75rem;"></i>Payment status is pending verification by our team</li>
+                    <li style="padding: 0.5rem 0; color: #666;"><i class="fas fa-envelope" style="color: #059669; margin-right: 0.75rem;"></i>You'll receive confirmation once payment is approved</li>
+                    {% else %}
+                    <li style="padding: 0.5rem 0; color: #666;"><i class="fas fa-envelope" style="color: #059669; margin-right: 0.75rem;"></i>Check your email for order confirmation</li>
+                    <li style="padding: 0.5rem 0; color: #666;"><i class="fas fa-truck" style="color: #059669; margin-right: 0.75rem;"></i>We'll send tracking updates soon</li>
+                    {% endif %}
+                    <li style="padding: 0.5rem 0; color: #666;"><i class="fas fa-question-circle" style="color: #059669; margin-right: 0.75rem;"></i>Questions? Contact our support team</li>
+                </ul>
+            </div>
+
+            <div style="display: flex; gap: 1rem; flex-wrap: wrap; justify-content: center;">
+                <a href="{{ url_for('shop') }}" style="flex: 1; min-width: 150px; padding: 1rem 1.5rem; background: linear-gradient(135deg, #059669 0%, #047857 100%); color: white; text-decoration: none; border-radius: 8px; text-align: center; font-weight: 600; transition: all 0.3s; box-shadow: 0 4px 15px rgba(5, 150, 105, 0.2);"
+                       onmouseover="this.style.boxShadow='0 6px 20px rgba(5, 150, 105, 0.3)';"
+                       onmouseout="this.style.boxShadow='0 4px 15px rgba(5, 150, 105, 0.2)';">
+                    🛍️ Continue Shopping
+                </a>
+                <a href="{{ url_for('home') }}" style="flex: 1; min-width: 150px; padding: 1rem 1.5rem; background: #f0f0f0; color: #111; text-decoration: none; border-radius: 8px; text-align: center; font-weight: 600; transition: all 0.3s; border: 2px solid #ddd;"
+                   onmouseover="this.style.background='#e0e0e0';"
+                   onmouseout="this.style.background='#f0f0f0';">
+                    🏠 Back to Home
+                </a>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+    @keyframes bounce {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.1); }
+    }
+    @media (max-width: 600px) {
+        .container {
+            padding: 1rem;
+        }
+    }
+</style>
+{% endblock %}

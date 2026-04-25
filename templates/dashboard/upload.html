@@ -1,0 +1,25 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Upload Asset - FashionHub Admin{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Assets</div>
+        <h1 class="page-title"><i class="fas fa-cloud-arrow-up"></i>Upload image</h1>
+        <p class="page-subtitle">The upload flow is unchanged, now presented in the shared admin shell.</p>
+    </div>
+</div>
+
+<div class="form-card">
+    <form action="{{ url_for('upload_image') }}" method="POST" enctype="multipart/form-data">
+        <div class="form-group">
+            <label class="form-label">Choose image</label>
+            <input type="file" name="image" class="form-control" accept="image/*">
+        </div>
+        <div class="form-actions">
+            <input type="submit" class="btn btn-primary" value="Upload">
+        </div>
+    </form>
+</div>
+{% endblock %}

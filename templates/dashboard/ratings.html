@@ -1,0 +1,119 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Product Ratings - Admin Dashboard{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <div class="page-kicker">Social Proof</div>
+        <h1 class="page-title"><i class="fas fa-star"></i>Product ratings & reviews</h1>
+        <p class="page-subtitle">Review moderation now matches the refreshed dashboard without changing the delete workflow.</p>
+    </div>
+    <span class="status-badge status-processing">{{ total }} Total Ratings</span>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card"><div class="stat-label">Total Ratings</div><div class="stat-number">{{ total }}</div></div>
+    <div class="stat-card"><div class="stat-label">5-Star Ratings</div><div class="stat-number" id="five-star-count">0</div></div>
+    <div class="stat-card"><div class="stat-label">Average Rating</div><div class="stat-number" id="avg-rating">0.0</div></div>
+    <div class="stat-card"><div class="stat-label">Verified Purchases</div><div class="stat-number" id="verified-count">0</div></div>
+</div>
+
+<div class="table-card">
+    <div class="table-header">
+        <h4 class="table-title">Recent Reviews</h4>
+    </div>
+    <div class="table-responsive">
+        <table class="table table-clean">
+            <thead>
+                <tr>
+                    <th>Product</th>
+                    <th>Rating</th>
+                    <th>Review</th>
+                    <th>Status</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for rating in ratings %}
+                <tr>
+                    <td><strong>{{ rating.product_name }}</strong><br><small class="text-muted">Product #{{ rating.product_id }}</small></td>
+                    <td>
+                        <div class="d-flex align-items-center gap-2">
+                            {% for i in range(rating.rating) %}<i class="fas fa-star text-warning" style="font-size: 0.9rem;"></i>{% endfor %}
+                            {% for i in range(5 - rating.rating) %}<i class="fas fa-star" style="font-size: 0.9rem; color: #ddd;"></i>{% endfor %}
+                            <span class="badge-discount badge-percentage">{{ rating.rating }}.0</span>
+                        </div>
+                    </td>
+                    <td><p class="mb-0" title="{{ rating.review }}">{{ rating.review }}</p></td>
+                    <td>{% if rating.verified %}<span class="status-badge status-active"><i class="fas fa-check-circle"></i> Verified</span>{% else %}<span class="status-badge status-inactive">Not Verified</span>{% endif %}</td>
+                    <td><small class="text-muted">{{ rating.created_at }}</small></td>
+                    <td>
+                        <form method="POST" action="{{ url_for('rating_module.delete_rating', rating_id=rating.id) }}" style="display: inline;">
+                            <button type="button" class="action-btn delete-btn" onclick="confirmDeleteRating(event, this.form)"><i class="fas fa-trash"></i> Delete</button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {% else %}
+        <div class="empty-state"><i class="fas fa-info-circle"></i> No ratings found yet.</div>
+        {% endif %}
+    </div>
+
+    {% if total_pages > 1 %}
+    <nav class="pagination-container">
+        <ul class="pagination justify-content-center mb-0">
+            {% if page > 1 %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('rating_module.ratings_route', page=1) }}">First</a></li>
+            <li class="page-item"><a class="page-link" href="{{ url_for('rating_module.ratings_route', page=page-1) }}">Previous</a></li>
+            {% endif %}
+
+            {% for p in range(max(1, page-2), min(total_pages+1, page+3)) %}
+                {% if p == page %}
+                <li class="page-item active"><span class="page-link">{{ p }}</span></li>
+                {% else %}
+                <li class="page-item"><a class="page-link" href="{{ url_for('rating_module.ratings_route', page=p) }}">{{ p }}</a></li>
+                {% endif %}
+            {% endfor %}
+
+            {% if page < total_pages %}
+            <li class="page-item"><a class="page-link" href="{{ url_for('rating_module.ratings_route', page=page+1) }}">Next</a></li>
+            <li class="page-item"><a class="page-link" href="{{ url_for('rating_module.ratings_route', page=total_pages) }}">Last</a></li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+
+<script>
+fetch('{{ url_for("rating_module.rating_stats") }}')
+    .then(r => r.json())
+    .then(data => {
+        document.getElementById('avg-rating').textContent = data.average_rating;
+        document.getElementById('five-star-count').textContent = data.distribution['5_stars'];
+        document.getElementById('verified-count').textContent = {{ ratings|length }};
+    })
+    .catch(e => console.error('Error loading stats:', e));
+
+function confirmDeleteRating(event, form) {
+    event.preventDefault();
+    Swal.fire({
+        title: 'Delete this review?',
+        text: 'This action cannot be undone.',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d32f2f',
+        cancelButtonColor: '#9e9e9e',
+        confirmButtonText: 'Yes, Delete',
+        cancelButtonText: 'Cancel'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            form.submit();
+        }
+    });
+}
+</script>
+{% endblock %}

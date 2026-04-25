@@ -1,0 +1,92 @@
+{% extends "admin_base.html" %}
+
+{% block title %}Add Product - FashionHub Admin{% endblock %}
+
+{% block content %}
+<nav aria-label="breadcrumb">
+    <ol class="breadcrumb">
+        <li class="breadcrumb-item"><a href="{{ url_for('product_module.products_route') }}">Products</a></li>
+        <li class="breadcrumb-item active">Add Product</li>
+    </ol>
+</nav>
+
+<div class="form-card">
+    <div class="page-header" style="padding: 0; background: transparent; border: 0; box-shadow: none; margin-bottom: 24px;">
+        <div>
+            <div class="page-kicker">Catalog Editor</div>
+            <h1 class="page-title"><i class="fas fa-plus-circle"></i>Add new product</h1>
+            <p class="page-subtitle">The form logic stays the same, now presented in a calmer editor layout.</p>
+        </div>
+    </div>
+
+    <form method="POST" enctype="multipart/form-data" action="{{ url_for('product_module.add_product') }}">
+        <div class="row">
+            <div class="form-group d-flex flex-column align-items-center justify-content-center">
+                <div class="image-preview" id="imagePreview">
+                    <div class="image-preview-placeholder">
+                        <i class="fas fa-cloud-upload-alt"></i>
+                        <p>Click to upload or drag and drop</p>
+                    </div>
+                </div>
+                <input type="file" class="form-control" id="imageInput" name="image" accept="image/*" style="display: none;">
+                <div class="help-text">JPG, PNG, GIF up to 5MB</div>
+            </div>
+        </div>
+
+        <div class="form-group">
+            <label class="form-label">Product Name *</label>
+            <input type="text" class="form-control" name="product_name" placeholder="Enter product name" required>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Category *</label>
+                <select class="form-select" name="category_id" required>
+                    <option value="">Select category</option>
+                    {% for category in categories %}
+                    <option value="{{ category.id }}">{{ category.category_name }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Price *</label>
+                <input type="number" class="form-control" name="price" placeholder="0.00" step="0.01" required>
+            </div>
+        </div>
+
+        <div class="form-row">
+            <div class="form-group">
+                <label class="form-label">Stock Quantity *</label>
+                <input type="number" class="form-control" name="stock" placeholder="0" min="0" required>
+                <div class="help-text">The number of items in stock</div>
+            </div>
+            <div class="form-group">
+                <label class="form-label">Status *</label>
+                <select class="form-select" name="status" required>
+                    <option value="instock" selected>In Stock</option>
+                </select>
+            </div>
+        </div>
+
+        <div class="form-group form-row full">
+            <label class="form-label">Description</label>
+            <textarea class="form-control" name="description" rows="4" placeholder="Enter product description..."></textarea>
+        </div>
+
+        <div class="form-actions">
+            <a href="{{ url_for('product_module.products_route') }}" class="btn btn-secondary">Cancel</a>
+            <button type="submit" class="btn btn-primary"><i class="fas fa-save"></i> Add Product</button>
+        </div>
+    </form>
+</div>
+
+<script>
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function () {
+            setupImagePreview('imagePreview', 'imageInput');
+        });
+    } else {
+        setupImagePreview('imagePreview', 'imageInput');
+    }
+</script>
+{% endblock %}
